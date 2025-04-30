@@ -2,8 +2,9 @@ import { blob } from "https://esm.town/v/std/blob";
 
 import { Context, Hono } from "npm:hono";
 import { bearerAuth } from "npm:hono/bearer-auth";
+import { HTTPException } from "npm:hono/http-exception";
 
-import { z } from "npm:zod";
+import { z, ZodError } from "npm:zod";
 
 let app = new Hono();
 
@@ -40,12 +41,15 @@ app.get("/creations/:idx", async function getCreationById(c: Context) {
 
 app.post("/creations", async function addCreation(c: Context) {
   let newCreation = z.object({
-    type: z.string().required(),
+    type: z.string(),
     text: z.string().optional(),
   }).strip().parse(await c.req.json());
 
   let creations = await blob.getJSON("/puddle/creations.json");
-  newCreation.id = "https://iliazeus-puddle.web.val.run/creations/" + creations.items.length;
+
+  let lastId = creations.items.at(-1)?.id;
+  let lastIndex = lastId ? lastId.slice("https://iliazeus-puddle.web.val.run/creations/".length) : 0;
+  newCreation.id = "https://iliazeus-puddle.web.val.run/creations/" + (+lastIndex + 1);
 
   creations.items.push(newCreation);
   await blob.setJSON("/puddle/creations.json", creations);
@@ -56,6 +60,20 @@ app.post("/creations", async function addCreation(c: Context) {
 app.delete("/creations", auth, async function deleteAllCreations(c: Context) {
   await blob.setJSON("/puddle/creations.json", { items: [] });
   return c.json({ ok: true });
+});
+
+app.delete("/creations/:idx", auth, async function deleteCreationById(c: Context) {
+  let creations = await blob.getJSON("/puddle/creations.json");
+  creations.items = creations.items.filter((x) => x.id !== c.req.url);
+  await blob.setJSON("/puddle/creations.json", creations);
+  return c.json({ ok: true });
+});
+
+app.onError(async function onError(e: any, c: Context) {
+  if (e instanceof HTTPException) return e.getResponse();
+  if (e instanceof ZodError) return c.json(e, { status: 400 });
+  if (e.name === "ValTownBlobNotFoundError") return c.notFound();
+  throw e;
 });
 
 export default app.fetch;
