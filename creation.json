@@ -1,3 +1,5 @@
 {
-  "id": "https://iliazeus.lol/puddle/creation.json"
+  "id": "https://iliazeus.lol/puddle/creation.json",
+  "type": "text",
+  "text": "Hello World!"
 }
