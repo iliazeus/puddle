@@ -5,5 +5,28 @@
   </head>
   <body>
     <h1>Ilia's Own Puddle</h1>
+    <div id="creations"></div>
+
+    <script type="module">
+      async function fetchJson(url, init) {
+        let response = await fetch(url, init);
+        if (!response.ok) throw new Error(response.statusText);
+        return await response.json();
+      }
+
+      let creationsEl = document.querySelector("#creations");
+
+      let instance = await fetchJson("./instance.json");
+
+      let nextPageUrl = instance.creations;
+      while (nextPageUrl) {
+        let page = await fetchJson(nextPageUrl);
+        nextPageUrl = page.next;
+
+        for (let creation of page.items) {
+          creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
+        }
+      }
+    </script>
   </body>
 </html>
