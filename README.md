@@ -15,7 +15,7 @@ An _instance_ is a thing:
 }
 ```
 
-For an example, see [iliazeus.lol/puddle/instance.json](./instance.json).
+For an example, see https://iliazeus.lol/puddle/instance.json.
 
 When `instance.creations` URI is fetched, it should return a _page_;
 the `items` of this page are _creations_.
