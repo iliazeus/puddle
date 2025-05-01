@@ -1,4 +1,4 @@
-## the proposed language of pondiverse
+## the language that puddle speaks
 
 Things are described with JSON.
 
