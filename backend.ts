@@ -6,6 +6,12 @@ import { HTTPException } from "npm:hono/http-exception";
 
 import { z, ZodError } from "npm:zod";
 
+const trusted = [
+  "https://iliazeus.lol/puddle/",
+  "https://pondiverse.com/",
+  "https://todepond--33148208245911f0bc54569c3dd06744.web.val.run/",
+];
+
 let app = new Hono();
 
 let auth = bearerAuth({
