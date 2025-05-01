@@ -18,11 +18,24 @@
       <input type="submit" value="Post" />
     </form>
 
+    <details>
+      <summary style="cursor: pointer">danger!</summary>
+      <form
+        id="delete"
+        style="display: flex; flex-flow: column; max-width: 500px"
+      >
+        <input type="text" name="uri" placeholder="creation uri" />
+        <input type="password" name="token" placeholder="password" />
+        <input type="submit" value="delete" />
+      </form>
+    </details>
+
     <script type="module">
       import { fetchJson, postJson } from "./library.js";
 
       let creationsEl = document.querySelector("#creations");
       let postFormEl = document.querySelector("form#post");
+      let deleteFormEl = document.querySelector("form#delete");
 
       let udpateCreations = async () => {
         let instance = await fetchJson("./instance.json");
@@ -44,6 +57,19 @@
         let instance = await fetchJson("./instance.json");
         await postJson(instance.creations, new FormData(postFormEl));
         postFormEl.reset();
+        await udpateCreations();
+      };
+
+      deleteFormEl.onsubmit = async (e) => {
+        e.preventDefault();
+        let data = new FormData(deleteFormEl);
+        let uri = data.get("uri");
+        let token = data.get("token");
+        await fetch(uri, {
+          method: "delete",
+          headers: { authorization: `Bearer ${token}` },
+        });
+        deleteFormEl.reset();
         await udpateCreations();
       };
 
