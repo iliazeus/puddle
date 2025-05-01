@@ -7,22 +7,47 @@
     <h1>Ilia's Own Puddle</h1>
     <div id="creations"></div>
 
+    <form id="post" style="display: flex; flex-flow: column; max-width: 500px">
+      <input type="text" name="title" placeholder="title" />
+      <input type="hidden" name="type" value="text" />
+      <textarea
+        style="resize: vertical"
+        name="text"
+        placeholder="your creation text"
+      ></textarea>
+      <input type="submit" value="Post" />
+    </form>
+
     <script type="module">
-      import { fetchJson } from "./library.js";
+      import { fetchJson, postJson } from "./library.js";
 
       let creationsEl = document.querySelector("#creations");
+      let postFormEl = document.querySelector("form#post");
 
-      let instance = await fetchJson("./instance.json");
+      let udpateCreations = async () => {
+        let instance = await fetchJson("./instance.json");
 
-      let nextPageUrl = instance.creations;
-      while (nextPageUrl) {
-        let page = await fetchJson(nextPageUrl);
-        nextPageUrl = page.next;
+        let nextPageUrl = instance.creations;
+        while (nextPageUrl) {
+          let page = await fetchJson(nextPageUrl);
+          nextPageUrl = page.next;
 
-        for (let creation of page.items) {
-          creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
+          creationsEl.innerHTML = "";
+          for (let creation of page.items) {
+            creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
+          }
         }
-      }
+      };
+
+      postFormEl.onsubmit = async (e) => {
+        e.preventDefault();
+        let instance = await fetchJson("./instance.json");
+        await postJson(instance.creations, new FormData(postFormEl));
+        postFormEl.reset();
+        await udpateCreations();
+      };
+
+      await udpateCreations();
     </script>
   </body>
 </html>
