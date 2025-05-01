@@ -38,6 +38,7 @@ app.get("/creations/:id", async function getCreationById(c: Context) {
 app.post("/creations", async function addCreation(c: Context) {
   let newCreation = z.object({
     type: z.string(),
+    title: z.string(),
     text: z.string().optional(),
   }).strip().parse(await c.req.json());
 
