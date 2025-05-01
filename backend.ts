@@ -26,14 +26,10 @@ app.get("/creations", async function getCreations(c: Context) {
   return c.json(creations);
 });
 
-app.get("/creations/:idx", async function getCreationById(c: Context) {
-  let { idx } = z.object({
-    idx: z.coerce.number().int().nonnegative(),
-  }).strip().parse(c.req.param());
-
+app.get("/creations/:id", async function getCreationById(c: Context) {
   let creations = await blob.getJSON("/puddle/creations.json");
 
-  let creation = creations.items[idx];
+  let creation = creations.items.find((x) => x.uri === c.req.url);
   if (!creation) return c.notFound();
 
   return c.json(creation);
@@ -48,8 +44,8 @@ app.post("/creations", async function addCreation(c: Context) {
   let creations = await blob.getJSON("/puddle/creations.json");
 
   let lastId = creations.items.at(-1)?.id;
-  let lastIndex = lastId ? lastId.slice("https://iliazeus-puddle.web.val.run/creations/".length) : 0;
-  newCreation.id = "https://iliazeus-puddle.web.val.run/creations/" + (+lastIndex + 1);
+  newCreation.id = lastId + 1;
+  newCreation.uri = "https://iliazeus-puddle.web.val.run/creations/" + newCreation.id;
 
   creations.items.push(newCreation);
   await blob.setJSON("/puddle/creations.json", creations);
@@ -62,9 +58,9 @@ app.delete("/creations", auth, async function deleteAllCreations(c: Context) {
   return c.json({ ok: true });
 });
 
-app.delete("/creations/:idx", auth, async function deleteCreationById(c: Context) {
+app.delete("/creations/:id", auth, async function deleteCreationById(c: Context) {
   let creations = await blob.getJSON("/puddle/creations.json");
-  creations.items = creations.items.filter((x) => x.id !== c.req.url);
+  creations.items = creations.items.filter((x) => x.uri !== c.req.url);
   await blob.setJSON("/puddle/creations.json", creations);
   return c.json({ ok: true });
 });
