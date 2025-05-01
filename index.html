@@ -8,11 +8,7 @@
     <div id="creations"></div>
 
     <script type="module">
-      async function fetchJson(url, init) {
-        let response = await fetch(url, init);
-        if (!response.ok) throw new Error(response.statusText);
-        return await response.json();
-      }
+      import { fetchJson } from "./library.js";
 
       let creationsEl = document.querySelector("#creations");
 
