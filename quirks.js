@@ -20,7 +20,8 @@ export async function fetchJson(url, init) {
 
     if (json.items.length > 0) {
       let nextUrl = new URL(url);
-      nextUrl.searchParams.set("page", (url.searchParams.get("page") ?? 1) + 1);
+      nextUrl.searchParams.set("page", +(url.searchParams.get("page") ?? 1) + 1);
+      json.next = String(nextUrl);
     }
   }
 
