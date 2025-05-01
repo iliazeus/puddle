@@ -31,23 +31,29 @@
     </details>
 
     <script type="module">
-      import { fetchJson, postJson } from "./library.js";
+      // import { fetchJson, postJson } from "./library.js";
+      import { fetchJson, postJson } from "./quirks.js";
 
       let creationsEl = document.querySelector("#creations");
       let postFormEl = document.querySelector("form#post");
       let deleteFormEl = document.querySelector("form#delete");
 
+      let instanceUris = ["./instance.json", "./friends/pondiverse.com.json"];
+
       let udpateCreations = async () => {
-        let instance = await fetchJson("./instance.json");
+        creationsEl.innerHTML = "";
 
-        let nextPageUrl = instance.creations;
-        while (nextPageUrl) {
-          let page = await fetchJson(nextPageUrl);
-          nextPageUrl = page.next;
+        for (let instanceUri of instanceUris) {
+          let instance = await fetchJson(instanceUri);
 
-          creationsEl.innerHTML = "";
-          for (let creation of page.items) {
-            creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
+          let nextPageUrl = instance.creations;
+          while (nextPageUrl) {
+            let page = await fetchJson(nextPageUrl);
+            nextPageUrl = page.next;
+
+            for (let creation of page.items) {
+              creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
+            }
           }
         }
       };
