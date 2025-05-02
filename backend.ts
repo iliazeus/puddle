@@ -43,9 +43,10 @@ app.get("/creations/:id", async function getCreationById(c: Context) {
 
 app.post("/creations", async function addCreation(c: Context) {
   let newCreation = z.object({
-    type: z.string(),
-    title: z.string(),
-    text: z.string().optional(),
+    type: z.string().max(64),
+    title: z.string().max(100),
+    text: z.string().max(20 * 1024).optional(),
+    image: z.string().url().startsWith("data:").max(200 * 1024).optional(),
   }).strip().parse(await c.req.json());
 
   let creations = await blob.getJSON("/puddle/creations.json");
@@ -53,6 +54,7 @@ app.post("/creations", async function addCreation(c: Context) {
   let lastId = creations.items.at(-1)?.id ?? 0;
   newCreation.id = lastId + 1;
   newCreation.uri = "https://iliazeus-puddle.web.val.run/creations/" + newCreation.id;
+  newCreation.time = new Date().toISOString();
 
   creations.items.push(newCreation);
   await blob.setJSON("/puddle/creations.json", creations);
