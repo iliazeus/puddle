@@ -1,37 +1,39 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
     <title>Ilia's Own Puddle</title>
   </head>
   <body>
-    <h1>Ilia's Own Puddle</h1>
-    <small><a href="https://github.com/iliazeus/puddle/">source code</a></small>
-    <div id="creations"></div>
-
-    <form id="post" style="display: flex; flex-flow: column; max-width: 500px">
-      <input type="text" name="title" placeholder="title" />
-      <input type="hidden" name="type" value="text" />
-      <textarea
-        style="resize: vertical"
-        name="text"
-        placeholder="your creation text"
-      ></textarea>
-      <input type="submit" value="Post" />
-    </form>
-
-    <details>
-      <summary style="cursor: pointer">danger!</summary>
-      <form
-        id="delete"
-        style="display: flex; flex-flow: column; max-width: 500px"
+    <main>
+      <h1>Ilia's Own Puddle</h1>
+      <small
+        ><a href="https://github.com/iliazeus/puddle/">source code</a></small
       >
-        <input type="text" name="uri" placeholder="creation uri" />
-        <input type="password" name="token" placeholder="password" />
-        <input type="submit" value="delete" />
+      <div id="creations"></div>
+
+      <form id="post" style="display: flex; flex-flow: column">
+        <input type="text" name="title" placeholder="title" />
+        <input type="hidden" name="type" value="text" />
+        <textarea
+          style="resize: vertical"
+          name="text"
+          placeholder="your creation text"
+        ></textarea>
+        <input type="submit" value="Post" />
       </form>
-    </details>
+
+      <details>
+        <summary style="cursor: pointer">danger!</summary>
+        <form id="delete" style="display: flex; flex-flow: column">
+          <input type="text" name="uri" placeholder="creation uri" />
+          <input type="password" name="token" placeholder="password" />
+          <input type="submit" value="delete" />
+        </form>
+      </details>
+    </main>
 
     <script type="module">
       // import { fetchJson, postJson } from "./library.js";
@@ -41,10 +43,16 @@
       let postFormEl = document.querySelector("form#post");
       let deleteFormEl = document.querySelector("form#delete");
 
-      let instanceUris = ["./instance.json", "./friends/pondiverse.com.json"];
+      let thisInstance = await fetchJson("./instance.json");
 
-      let udpateCreations = async () => {
-        creationsEl.innerHTML = "";
+      let isTrusted = (uri) => {
+        uri = String(uri);
+        if (uri.startsWith("data:")) return true;
+        return thisInstance.trusted.some((x) => uri.startsWith(x));
+      };
+
+      let creationsAsync = (async function* () {
+        let instanceUris = ["./instance.json", "./friends/pondiverse.com.json"];
 
         for (let instanceUri of instanceUris) {
           let instance = await fetchJson(instanceUri);
@@ -54,10 +62,38 @@
             let page = await fetchJson(nextPageUrl);
             nextPageUrl = page.next;
 
-            for (let creation of page.items) {
-              creationsEl.innerHTML += `<pre><code>${JSON.stringify(creation, null, 2)}</code></pre>`;
-            }
+            yield* page.items;
           }
+        }
+      })();
+
+      let getNextCreationsPage = async () => {
+        document.querySelector("button#nextPage")?.remove();
+
+        let creation, done;
+        for (let i = 0; i < 5; i++) {
+          let item = await creationsAsync.next();
+          done = item.done;
+          creation = item.value;
+          if (done) break;
+
+          creationsEl.innerHTML += `<article class="creation">
+              <h2>${creation.title}</h2>
+              ${
+                creation.image && isTrusted(creation.image)
+                  ? `<img src="${creation.image}" />`
+                  : ""
+              }
+            ${creation.text ? `<p>${creation.text}</p>` : ""}
+            </article>`;
+        }
+
+        if (!done) {
+          let button = document.createElement("button");
+          button.id = "nextPage";
+          button.innerText = "Load more";
+          button.onclick = () => getNextCreationsPage();
+          creationsEl.appendChild(button);
         }
       };
 
@@ -66,7 +102,7 @@
         let instance = await fetchJson("./instance.json");
         await postJson(instance.creations, new FormData(postFormEl));
         postFormEl.reset();
-        await udpateCreations();
+        window.location.reload();
       };
 
       deleteFormEl.onsubmit = async (e) => {
@@ -79,10 +115,10 @@
           headers: { authorization: `Bearer ${token}` },
         });
         deleteFormEl.reset();
-        await udpateCreations();
+        window.location.reload();
       };
 
-      await udpateCreations();
+      await getNextCreationsPage();
     </script>
   </body>
 </html>

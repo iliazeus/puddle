@@ -1,0 +1,26 @@
+body {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+main {
+  width: 100%;
+  margin: auto;
+  max-width: 512px;
+  display: flex;
+  flex-flow: column;
+}
+
+pre {
+  overflow-x: scroll;
+}
+
+#creations > * {
+  margin-bottom: 50px;
+}
+
+#creations img {
+  max-width: 512px;
+  max-height: 512px;
+}
