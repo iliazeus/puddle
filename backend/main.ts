@@ -60,7 +60,7 @@ app.get("/creations", async function getCreations(c: Context) {
 app.get("/creations/:id", async function getCreationById(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
 
-  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  let creation = creations.items.find((x: any) => x.id === +c.req.param("id"));
   if (!creation) return c.notFound();
 
   if (creation.image) creation.image = creation.image.uri;
@@ -73,7 +73,7 @@ app.get("/creations/:id", async function getCreationById(c: Context) {
 app.get("/images/:id", async function getImageById(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
 
-  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  let creation = creations.items.find((x: any) => x.id === +c.req.param("id"));
   if (!creation || !creation.image) return c.notFound();
 
   let blob = await loadMedia(creation, "image");
@@ -84,7 +84,7 @@ app.get("/images/:id", async function getImageById(c: Context) {
 app.get("/audios/:id", async function getImageById(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
 
-  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  let creation = creations.items.find((x: any) => x.id === +c.req.param("id"));
   if (!creation || !creation.audio) return c.notFound();
 
   let blob = await loadMedia(creation, "audio");
@@ -95,7 +95,7 @@ app.get("/audios/:id", async function getImageById(c: Context) {
 app.get("/videos/:id", async function getImageById(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
 
-  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  let creation = creations.items.find((x: any) => x.id === +c.req.param("id"));
   if (!creation || !creation.video) return c.notFound();
 
   let blob = await loadMedia(creation, "video");
@@ -160,7 +160,9 @@ app.delete(
     let creations: any = JSON.parse(
       await fs.readFile("./creations.json", "utf-8")
     );
-    creations.items = creations.items.filter((x: any) => x.uri !== c.req.url);
+    creations.items = creations.items.filter(
+      (x: any) => x.id !== +c.req.param("id")
+    );
     await fs.writeFile("./creations.json", JSON.stringify(creations), "utf-8");
     return c.json({ ok: true });
   }
