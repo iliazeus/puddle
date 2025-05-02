@@ -1,5 +1,7 @@
 {
   "uri": "https://iliazeus.lol/puddle/instance.json",
+  "name": "the Puddle",
+  "homepage": "https://iliazeus.lol/puddle/",
   "creations": "https://iliazeus-puddle.web.val.run/creations",
   "trusted": [
     "https://iliazeus-puddle.web.val.run/",
