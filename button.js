@@ -15,7 +15,7 @@ export async function addPondiverseButton(instanceUri) {
 
   .pondiverse-button {
     border-radius: 100%;
-    background-color: #4680ff;
+    background-color: #8f3bc0;
     border: white 3px solid;
     height: 45px;
     width: 45px;
