@@ -49,7 +49,11 @@ async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
 
 async function migrate() {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+  creations.lastId = -1;
   for (let creation of creations.items) {
+    creations.lastId += 1;
+    creation.id = creations.lastId;
+    creation.uri = `https://api.iliazeus.lol/puddle/creations/${creation.id}`;
     if (creation.image) await saveMedia(creation, "image");
     if (creation.audio) await saveMedia(creation, "audio");
     if (creation.video) await saveMedia(creation, "video");
