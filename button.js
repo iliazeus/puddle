@@ -121,7 +121,9 @@ export async function addPondiverseButton(instanceUri) {
   styleSheet.innerText = style;
   document.head.appendChild(styleSheet);
 
-  const buttonContainer = document.createElement("div");
+  const buttonContainer =
+    document.querySelector(".pondiverse-button-container") ??
+    document.createElement("div");
   buttonContainer.className = "pondiverse-button-container";
 
   const button = document.createElement("button");
