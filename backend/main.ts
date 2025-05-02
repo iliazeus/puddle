@@ -61,7 +61,8 @@ app.post(
       await fs.readFile("./creations.json", "utf-8")
     );
 
-    newCreation.id = creations.lastId + 1;
+    creations.lastId += 1;
+    newCreation.id = creations.lastId;
     newCreation.uri =
       "https://api.iliazeus.lol/puddle/creations/" + newCreation.id;
 
