@@ -97,7 +97,7 @@
               }
               ${
                 creation.audio && uriIsTrusted(creation.audio)
-                  ? `<audio src="${creation.audio}" />`
+                  ? `<audio controls src="${creation.audio}"></audio>`
                   : ""
               }
             ${creation.text ? `<p>${creation.text}</p>` : ""}
