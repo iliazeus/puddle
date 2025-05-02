@@ -51,7 +51,7 @@
       let uriIsTrusted = (uri) => {
         uri = String(uri);
         if (uri.startsWith("data:")) return true;
-        if (uri.startsWIth("https://iliazeus-puddle.web.val.run/")) return true;
+        if (uri.startsWith("https://iliazeus-puddle.web.val.run/")) return true;
         if (uri.startsWith("https://pondiverse.val.run/")) return true;
         return false;
       };
