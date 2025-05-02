@@ -107,11 +107,11 @@
 
       postFormEl.onsubmit = async (e) => {
         e.preventDefault();
+        let body = await formDataToObject(new FormData(postFormEl));
+        body.data = JSON.stringify({ text: body.text });
         let response = await fetch(pv.DEFAULT_INSTANCE.addCreation, {
           method: "post",
-          body: JSON.stringify(
-            await formDataToObject(new FormData(postFormEl))
-          ),
+          body: JSON.stringify(body),
         });
         if (!response.ok) throw new Error(response.statusText);
         postFormEl.reset();
