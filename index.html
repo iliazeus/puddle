@@ -56,23 +56,24 @@
         return false;
       };
 
-      let creations = [];
+      let allCreations = [];
       for (let instance of instances) {
         try {
-          let instanceCreations = await pv.fetchPondiverseCreations({
-            instance,
-          });
-          creations.push(...instanceCreations);
+          let creations = await pv.fetchPondiverseCreations({ instance });
+          for (let creation of creations) {
+            creation.instance = instance;
+            allCreations.push(creation);
+          }
         } catch (e) {
           console.error(e);
         }
       }
 
-      creations.sort((a, b) => +new Date(b.time) - +new Date(a.time));
+      allCreations.sort((a, b) => +new Date(b.time) - +new Date(a.time));
 
       let creationPages = [];
-      for (let i = 0; i < creations.length; i += 10) {
-        creationPages.push(creations.slice(i, i + 10));
+      for (let i = 0; i < allCreations.length; i += 10) {
+        creationPages.push(allCreations.slice(i, i + 10));
       }
 
       let showNextCreationsPage = () => {
@@ -82,7 +83,7 @@
         document.querySelector("button#nextPage")?.remove();
         for (let creation of page) {
           creation.image = pv.getPondiverseCreationImageUrl(creation, {
-            instance,
+            instance: creation.instance,
           });
           creationsEl.innerHTML += `<article class="creation">
               <h2>${creation.title}</h2>
