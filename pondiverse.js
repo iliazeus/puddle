@@ -4,7 +4,7 @@
 // Configure these to your needs
 export const DEFAULT_INSTANCE = {
   name: "puddle",
-  homepage: "https://iliazeus.lol/puddle/",
+  home: "https://iliazeus.lol/puddle/",
   addCreation: "https://iliazeus-puddle.web.val.run/creations/",
   getCreation: "https://iliazeus-puddle.web.val.run/creations/",
   // getCreationImage: "TODO", // i have images as data URIs inside creations currently
@@ -12,116 +12,116 @@ export const DEFAULT_INSTANCE = {
 };
 
 const PONDIVERSE_BUTTON_STYLE = `
-	.pondiverse-button-container {
-		position: fixed;
-		box-sizing: border-box;
-		bottom: 0;
-		right: 0;
-		z-index: 9999;
-	}
+  .pondiverse-button-container {
+    position: fixed;
+    box-sizing: border-box;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+  }
 
-	.pondiverse-button {
-		border-radius: 100%;
-		background-color: #4680ff;
-		border: white 3px solid;
-		height: 45px;
-		width: 45px;
-		cursor: pointer;
-		margin: 10px;
-		transition: transform 0.2s;
-		color: white;
-		font-size: 25px;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-	}
+  .pondiverse-button {
+    border-radius: 100%;
+    background-color: #4680ff;
+    border: white 3px solid;
+    height: 45px;
+    width: 45px;
+    cursor: pointer;
+    margin: 10px;
+    transition: transform 0.2s;
+    color: white;
+    font-size: 25px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
 
-	.pondiverse-button:hover {
-		transform: scale(1.1);
-	}
+  .pondiverse-button:hover {
+    transform: scale(1.1);
+  }
 
-	#pondiverse-dialog {
-		color: white;
-		font-size: 20px;
-		text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
-		font-family: sans-serif;
-		padding: 0px;
-		background-color: transparent;
-		border: none;
-	}
+  #pondiverse-dialog {
+    color: white;
+    font-size: 20px;
+    text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
+    font-family: sans-serif;
+    padding: 0px;
+    background-color: transparent;
+    border: none;
+  }
 
-	#pondiverse-dialog a {
-		color: #46ff80;
-		font-weight: bold;
-	}
+  #pondiverse-dialog a {
+    color: #46ff80;
+    font-weight: bold;
+  }
 
-	#pondiverse-dialog a:focus {
-		outline: 2px solid #46ff80;
-	}
+  #pondiverse-dialog a:focus {
+    outline: 2px solid #46ff80;
+  }
 
-	#pondiverse-dialog a:hover {
-		background-color: #46ff80;
-		color: black;
-		text-shadow: none;
-		text-decoration: none;
-		outline: 2px solid #46ff80;
-	}
+  #pondiverse-dialog a:hover {
+    background-color: #46ff80;
+    color: black;
+    text-shadow: none;
+    text-decoration: none;
+    outline: 2px solid #46ff80;
+  }
 
-	#pondiverse-dialog form {
-		// box-sizing: border-box;
-		background-color: #4680ff;
-		border-radius: 20px;
-		outline: none;
-		border: 3px solid white;
-		padding: 20px;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-	}
+  #pondiverse-dialog form {
+    // box-sizing: border-box;
+    background-color: #4680ff;
+    border-radius: 20px;
+    outline: none;
+    border: 3px solid white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  }
 
-	#pondiverse-dialog input[type="text"] {
-		width: 100%;
-		padding: 10px 15px;
-		margin: 10px 0;
-		border: 3px inset #3670ee;
-		border-radius: 10px;
-		background-color: #fff;
-		color: #000;
-		font-size: 16px;
-	}
+  #pondiverse-dialog input[type="text"] {
+    width: 100%;
+    padding: 10px 15px;
+    margin: 10px 0;
+    border: 3px inset #3670ee;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #000;
+    font-size: 16px;
+  }
 
-	#pondiverse-dialog:focus {
-		outline: none;
-	}
+  #pondiverse-dialog:focus {
+    outline: none;
+  }
 
-	#pondiverse-dialog input[type="text"]:focus {
-		outline: 2px solid #46ff80;
-		outline-offset: 0px;
-	}
+  #pondiverse-dialog input[type="text"]:focus {
+    outline: 2px solid #46ff80;
+    outline-offset: 0px;
+  }
 
-	#pondiverse-dialog button {
-		background-color: #4680ff;
-		padding: 10px 20px;
-		border-radius: 10px;
-		cursor: pointer;
-		font-size: 16px;
-		color: white;
-		margin-top: 10px;
-		border: 3px outset #3670ee;
-		user-select: none;
-	}
+  #pondiverse-dialog button {
+    background-color: #4680ff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    margin-top: 10px;
+    border: 3px outset #3670ee;
+    user-select: none;
+  }
 
-	#pondiverse-dialog button:focus {
-		border: 3px inset #3670ee;
-	}
+  #pondiverse-dialog button:focus {
+    border: 3px inset #3670ee;
+  }
 
-	#pondiverse-dialog hgroup.space {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-	}
+  #pondiverse-dialog hgroup.space {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
 
-	#pondiverse-dialog #preview-image {
-		max-width: 100%;
-		max-height: 300px;
-		margin: 10px auto;
-	}
+  #pondiverse-dialog #preview-image {
+    max-width: 100%;
+    max-height: 300px;
+    margin: 10px auto;
+  }
   `;
 
 //============================//
@@ -210,17 +210,17 @@ export function addPondiverseButton(
 
   dialog.innerHTML = `
   <form>
-	<p>Do you want to share your creation to the <a href="https://pondiverse.com">Pondiverse</a>?</p>
-	<p>All creations get deleted after 25 hours.</p>
-	<p><img id="preview-image" src="" alt="Thumbnail of your creation"></p>
-	<label for="name">Title</label>
-	<input type="text" id="name" name="name" required autocomplete="off" spellcheck="false" />
-	<input type="hidden" name="data" value="" />
-	<input type="hidden" name="type" value="" />
-	<hgroup class="space">
-		<button type="button" class="secondary" id="cancel">Cancel</button>
-		<button type="submit">Publish</button>
-	</hgroup>
+  <p>Do you want to share your creation to <a href="${instance.home}">${instance.name}</a>?</p>
+  <p>It will then become part of the <a href="https://pondiverse.com">Pondiverse</a>.</p>
+  <p><img id="preview-image" src="" alt="Thumbnail of your creation"></p>
+  <label for="name">Title</label>
+  <input type="text" id="name" name="name" required autocomplete="off" spellcheck="false" />
+  <input type="hidden" name="data" value="" />
+  <input type="hidden" name="type" value="" />
+  <hgroup class="space">
+    <button type="button" class="secondary" id="cancel">Cancel</button>
+    <button type="submit">Publish</button>
+  </hgroup>
   </form>
   `;
 

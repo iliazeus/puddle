@@ -140,7 +140,7 @@ export async function addPondiverseButton(instanceUri, getPondiverseCreation) {
 
   dialog.innerHTML = `
   <form>
-  <p>Do you want to share your creation to <a href="${instance.homepage}">${instance.name}</a>?</p>
+  <p>Do you want to share your creation to <a href="${instance.home}">${instance.name}</a>?</p>
   <p>It will then become part of the <a href="https://pondiverse.com">Pondiverse</a>.</p>
   <p>All creations get deleted after 25 hours.</p>
   <p><img id="preview-image" src="" alt="Thumbnail of your creation"></p>
