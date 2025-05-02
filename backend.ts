@@ -58,7 +58,7 @@ app.post("/creations", async function addCreation(c: Context) {
   let now = new Date();
   newCreation.time = now.toISOString();
 
-  creations.items.push(newCreation);
+  creations.items.unshift(newCreation);
 
   creations.items = creations.items.filter(
     (x) => +now - +(new Date(x.time)) <= 25 * 60 * 60 * 1000,
