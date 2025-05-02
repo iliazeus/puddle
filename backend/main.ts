@@ -38,7 +38,8 @@ async function saveMedia(creation: any, mediaKind: string) {
     path: `./${mediaKind}/${creation.id}`,
   };
 
-  await fs.writeFile(creation[mediaKind].path, await blob.bytes());
+  let bytes = new Uint8Array(await blob.arrayBuffer());
+  await fs.writeFile(creation[mediaKind].path, bytes);
 }
 
 async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
@@ -88,7 +89,7 @@ app.get("/images/:id", async function getImageById(c: Context) {
 
   let blob = await loadMedia(creation, "image");
   c.header("Content-Type", blob.type);
-  return c.body(await blob.bytes());
+  return c.body(await blob.arrayBuffer());
 });
 
 app.get("/audios/:id", async function getImageById(c: Context) {
@@ -99,7 +100,7 @@ app.get("/audios/:id", async function getImageById(c: Context) {
 
   let blob = await loadMedia(creation, "audio");
   c.header("Content-Type", blob.type);
-  return c.body(await blob.bytes());
+  return c.body(await blob.arrayBuffer());
 });
 
 app.get("/videos/:id", async function getImageById(c: Context) {
@@ -110,7 +111,7 @@ app.get("/videos/:id", async function getImageById(c: Context) {
 
   let blob = await loadMedia(creation, "video");
   c.header("Content-Type", blob.type);
-  return c.body(await blob.bytes());
+  return c.body(await blob.arrayBuffer());
 });
 
 app.post(
