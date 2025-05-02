@@ -21,6 +21,9 @@
         <label>
           Image (optional): <input type="file" name="image" accept="image/*" />
         </label>
+        <label>
+          Audio (optional): <input type="file" name="audio" accept="audio/*" />
+        </label>
         <textarea
           style="resize: vertical"
           name="text"
@@ -90,6 +93,11 @@
               ${
                 creation.image && uriIsTrusted(creation.image)
                   ? `<img src="${creation.image}" />`
+                  : ""
+              }
+              ${
+                creation.audio && uriIsTrusted(creation.audio)
+                  ? `<audio src="${creation.audio}" />`
                   : ""
               }
             ${creation.text ? `<p>${creation.text}</p>` : ""}
