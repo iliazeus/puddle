@@ -2,6 +2,7 @@ import { blob } from "https://esm.town/v/std/blob";
 
 import { Context, Hono } from "npm:hono";
 import { bearerAuth } from "npm:hono/bearer-auth";
+import { bodyLimit } from "npm:hono/body-limit";
 import { HTTPException } from "npm:hono/http-exception";
 
 import { z, ZodError } from "npm:zod";
@@ -41,12 +42,14 @@ app.get("/creations/:id", async function getCreationById(c: Context) {
   return c.json(creation);
 });
 
-app.post("/creations", async function addCreation(c: Context) {
+app.post("/creations", bodyLimit({ maxSize: 250 * 1024 }), async function addCreation(c: Context) {
   let newCreation = z.object({
     type: z.string().max(64),
     title: z.string().max(100),
     text: z.string().max(20 * 1024).optional(),
     image: z.string().url().startsWith("data:").max(200 * 1024).optional(),
+    audio: z.string().url().startsWith("data:").max(200 * 1024).optional(),
+    video: z.string().url().startsWith("data:").max(200 * 1024).optional(),
     data: z.string().max(20 * 1024).optional(),
   }).strip().parse(await c.req.json());
 
