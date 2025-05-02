@@ -81,6 +81,9 @@
 
         document.querySelector("button#nextPage")?.remove();
         for (let creation of page) {
+          creation.image = pv.getPondiverseCreationImageUrl(creation, {
+            instance,
+          });
           creationsEl.innerHTML += `<article class="creation">
               <h2>${creation.title}</h2>
               ${
