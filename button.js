@@ -1,7 +1,7 @@
 // import { fetchJson, postJson } from "./library.js";
 import { fetchJson, postJson } from "./quirks.js";
 
-export function addPondiverseButton() {
+export function addPondiverseButton(instanceUri) {
   const style = `
   .pondiverse-button-container {
     position: fixed;
@@ -212,9 +212,7 @@ export function addPondiverseButton() {
     publishButton.style.cursor = "not-allowed";
 
     try {
-      const instance = await fetchJson(
-        "https://iliazeus.lol/puddle/instance.json"
-      );
+      const instance = await fetchJson(instanceUri);
       await postJson(instance.creations, request);
 
       closePondiverseDialog();
