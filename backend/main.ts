@@ -3,12 +3,14 @@ import * as fs from "node:fs/promises";
 import { Context, Hono } from "hono";
 import { bearerAuth } from "hono/bearer-auth";
 import { bodyLimit } from "hono/body-limit";
+import { logger } from "hono/logger";
 import { HTTPException } from "hono/http-exception";
 import { serve } from "@hono/node-server";
 
 import { z, ZodError } from "zod";
 
 let app = new Hono();
+app.use(logger());
 
 let auth = bearerAuth({
   // adapted from https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest
