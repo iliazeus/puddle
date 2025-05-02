@@ -3,8 +3,7 @@ import * as lib from "./library.js";
 async function fetchJsonFromPondiverseCom(url, init) {
   url = new URL(url);
 
-  let baseUrl =
-    "https://todepond--33148208245911f0bc54569c3dd06744.web.val.run";
+  let baseUrl = "https://pondiverse.val.run";
 
   if (url.pathname === "/creations") {
     url.pathname = "/get-creations";
@@ -39,10 +38,7 @@ async function fetchJsonFromPondiverseCom(url, init) {
 export async function fetchJson(url, init) {
   url = new URL(url, window.location);
 
-  if (
-    url.origin ===
-    "https://todepond--33148208245911f0bc54569c3dd06744.web.val.run"
-  )
+  if (url.origin === "https://pondiverse.val.run")
     return await fetchJsonFromPondiverseCom(url, init);
 
   return await lib.fetchJson(url, init);
