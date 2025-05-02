@@ -51,8 +51,7 @@ app.post("/creations", async function addCreation(c: Context) {
 
   let creations = await blob.getJSON("/puddle/creations.json");
 
-  let lastId = creations.items.at(-1)?.id ?? 0;
-  newCreation.id = lastId + 1;
+  newCreation.id = creations.lastId + 1;
   newCreation.uri = "https://iliazeus-puddle.web.val.run/creations/" + newCreation.id;
 
   let now = new Date();
