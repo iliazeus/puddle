@@ -1,11 +1,12 @@
 // import { fetchJson, postJson } from "./library.js";
 import { fetchJson, postJson } from "./quirks.js";
 
-export async function addPondiverseButton(instanceUri) {
+export async function addPondiverseButton(instanceUri, getPondiverseCreation) {
+  window.getPondiverseCreation = getPondiverseCreation;
   const instance = await fetchJson(instanceUri);
 
   const style = `
-  .pondiverse-button-container {
+  .puddle-button-container {
     position: fixed;
     box-sizing: border-box;
     bottom: 0;
@@ -13,7 +14,7 @@ export async function addPondiverseButton(instanceUri) {
     z-index: 9999;
   }
 
-  .pondiverse-button {
+  .puddle-button {
     border-radius: 100%;
     background-color: #8f3bc0;
     border: white 3px solid;
@@ -27,11 +28,11 @@ export async function addPondiverseButton(instanceUri) {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
 
-  .pondiverse-button:hover {
+  .puddle-button:hover {
     transform: scale(1.1);
   }
 
-  #pondiverse-dialog {
+  #puddle-dialog {
     color: white;
     font-size: 20px;
     text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
@@ -41,16 +42,16 @@ export async function addPondiverseButton(instanceUri) {
     border: none;
   }
 
-  #pondiverse-dialog a {
+  #puddle-dialog a {
     color: #46ff80;
     font-weight: bold;
   }
 
-  #pondiverse-dialog a:focus {
+  #puddle-dialog a:focus {
     outline: 2px solid #46ff80;
   }
 
-  #pondiverse-dialog a:hover {
+  #puddle-dialog a:hover {
     background-color: #46ff80;
     color: black;
     text-shadow: none;
@@ -58,7 +59,7 @@ export async function addPondiverseButton(instanceUri) {
     outline: 2px solid #46ff80;
   }
 
-  #pondiverse-dialog form {
+  #puddle-dialog form {
     // box-sizing: border-box;
     background-color: #4680ff;
     border-radius: 20px;
@@ -68,7 +69,7 @@ export async function addPondiverseButton(instanceUri) {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   }
 
-  #pondiverse-dialog input[type="text"] {
+  #puddle-dialog input[type="text"] {
     width: 100%;
     padding: 10px 15px;
     margin: 10px 0;
@@ -79,16 +80,16 @@ export async function addPondiverseButton(instanceUri) {
     font-size: 16px;
   }
 
-  #pondiverse-dialog:focus {
+  #puddle-dialog:focus {
     outline: none;
   }
 
-  #pondiverse-dialog input[type="text"]:focus {
+  #puddle-dialog input[type="text"]:focus {
     outline: 2px solid #46ff80;
     outline-offset: 0px;
   }
 
-  #pondiverse-dialog button {
+  #puddle-dialog button {
     background-color: #4680ff;
     padding: 10px 20px;
     border-radius: 10px;
@@ -100,17 +101,17 @@ export async function addPondiverseButton(instanceUri) {
     user-select: none;
   }
 
-  #pondiverse-dialog button:focus {
+  #puddle-dialog button:focus {
     border: 3px inset #3670ee;
   }
 
-  #pondiverse-dialog hgroup.space {
+  #puddle-dialog hgroup.space {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
   }
 
-  #pondiverse-dialog #preview-image {
+  #puddle-dialog #preview-image {
     max-width: 100%;
     max-height: 300px;
     margin: 10px auto;
@@ -124,10 +125,10 @@ export async function addPondiverseButton(instanceUri) {
   const buttonContainer =
     document.querySelector(".pondiverse-button-container") ??
     document.createElement("div");
-  buttonContainer.className = "pondiverse-button-container";
+  buttonContainer.className += "puddle-button-container";
 
   const button = document.createElement("button");
-  button.className = "pondiverse-button";
+  button.className = "puddle-button";
   button.textContent = "✶";
 
   buttonContainer.append(button);
@@ -135,7 +136,7 @@ export async function addPondiverseButton(instanceUri) {
 
   const dialog = document.createElement("dialog");
   document.body.append(dialog);
-  dialog.id = "pondiverse-dialog";
+  dialog.id = "puddle-dialog";
 
   dialog.innerHTML = `
   <form>
@@ -231,7 +232,7 @@ export async function addPondiverseButton(instanceUri) {
 }
 
 export function openPondiverseDialog() {
-  const dialog = document.getElementById("pondiverse-dialog");
+  const dialog = document.getElementById("puddle-dialog");
   if (!dialog) {
     throw new Error(
       "Pondiverse dialog not found. Make sure you run addPondiverseButton() first."
@@ -267,7 +268,7 @@ export function openPondiverseDialog() {
 }
 
 export function closePondiverseDialog() {
-  const dialog = document.getElementById("pondiverse-dialog");
+  const dialog = document.getElementById("puddle-dialog");
 
   if (!dialog) {
     throw new Error(
