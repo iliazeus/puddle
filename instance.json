@@ -2,9 +2,9 @@
   "uri": "https://iliazeus.lol/puddle/instance.json",
   "name": "the Puddle",
   "home": "https://iliazeus.lol/puddle/",
-  "creations": "https://iliazeus-puddle.web.val.run/creations",
+  "creations": "https://api.iliazeus.lol/puddle/creations",
   "trusted": [
-    "https://iliazeus-puddle.web.val.run/",
+    "https://api.iliazeus.lol/puddle/",
     "https://pondiverse.com/",
     "https://pondiverse.val.run/"
   ]

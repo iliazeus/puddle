@@ -63,7 +63,7 @@ app.post(
 
     newCreation.id = creations.lastId + 1;
     newCreation.uri =
-      "https://iliazeus-puddle.web.val.run/creations/" + newCreation.id;
+      "https://api.iliazeus.lol/puddle/creations/" + newCreation.id;
 
     let now = new Date();
     newCreation.time = now.toISOString();
