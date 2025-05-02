@@ -47,21 +47,6 @@ async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
   return new Blob([bytes], { type: creation[mediaKind].type });
 }
 
-async function migrate() {
-  let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
-  creations.lastId = -1;
-  for (let creation of creations.items) {
-    creations.lastId += 1;
-    creation.id = creations.lastId;
-    creation.uri = `https://api.iliazeus.lol/puddle/creations/${creation.id}`;
-    if (creation.image) await saveMedia(creation, "image");
-    if (creation.audio) await saveMedia(creation, "audio");
-    if (creation.video) await saveMedia(creation, "video");
-  }
-  await fs.writeFile("./creations.json", JSON.stringify(creations), "utf-8");
-}
-migrate();
-
 app.get("/creations", async function getCreations(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
   for (let creation of creations.items) {
