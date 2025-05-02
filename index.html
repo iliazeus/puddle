@@ -88,7 +88,7 @@
           creationsEl.innerHTML += `<article class="creation">
               <h2>${creation.title}</h2>
               ${
-                creation.image && isTrusted(creation.image)
+                creation.image && uriIsTrusted(creation.image)
                   ? `<img src="${creation.image}" />`
                   : ""
               }
