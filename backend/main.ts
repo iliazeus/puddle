@@ -28,8 +28,31 @@ let auth = bearerAuth({
   },
 });
 
+async function saveMedia(creation: any, mediaKind: string) {
+  await fs.mkdir(`./${mediaKind}`, { recursive: true });
+
+  let blob = await (await fetch(creation[mediaKind])).blob();
+  creation[mediaKind] = {
+    uri: `https://api.iliazeus.lol/puddle/${mediaKind}s/${creation.id}`,
+    type: blob.type,
+    path: `./${mediaKind}/${creation.id}`,
+  };
+
+  await fs.writeFile(creation[mediaKind].path, await blob.bytes());
+}
+
+async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
+  let bytes = await fs.readFile(creation[mediaKind].path);
+  return new Blob([bytes], { type: creation[mediaKind].type });
+}
+
 app.get("/creations", async function getCreations(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+  for (let creation of creations.items) {
+    if (creation.image) creation.image = creation.image.uri;
+    if (creation.audio) creation.audio = creation.audio.uri;
+    if (creation.video) creation.video = creation.video.uri;
+  }
   return c.json(creations);
 });
 
@@ -39,7 +62,44 @@ app.get("/creations/:id", async function getCreationById(c: Context) {
   let creation = creations.items.find((x: any) => x.uri === c.req.url);
   if (!creation) return c.notFound();
 
+  if (creation.image) creation.image = creation.image.uri;
+  if (creation.audio) creation.audio = creation.audio.uri;
+  if (creation.video) creation.video = creation.video.uri;
+
   return c.json(creation);
+});
+
+app.get("/images/:id", async function getImageById(c: Context) {
+  let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+
+  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  if (!creation || !creation.image) return c.notFound();
+
+  let blob = await loadMedia(creation, "image");
+  c.header("Content-Type", blob.type);
+  return c.body(await blob.bytes());
+});
+
+app.get("/audios/:id", async function getImageById(c: Context) {
+  let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+
+  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  if (!creation || !creation.audio) return c.notFound();
+
+  let blob = await loadMedia(creation, "audio");
+  c.header("Content-Type", blob.type);
+  return c.body(await blob.bytes());
+});
+
+app.get("/videos/:id", async function getImageById(c: Context) {
+  let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+
+  let creation = creations.items.find((x: any) => x.uri === c.req.url);
+  if (!creation || !creation.video) return c.notFound();
+
+  let blob = await loadMedia(creation, "video");
+  c.header("Content-Type", blob.type);
+  return c.body(await blob.bytes());
 });
 
 app.post(
@@ -68,6 +128,10 @@ app.post(
 
     let now = new Date();
     newCreation.time = now.toISOString();
+
+    if (newCreation.image) await saveMedia(newCreation, "image");
+    if (newCreation.audio) await saveMedia(newCreation, "audio");
+    if (newCreation.video) await saveMedia(newCreation, "video");
 
     creations.items.unshift(newCreation);
 
