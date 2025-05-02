@@ -5,7 +5,7 @@
 export const DEFAULT_INSTANCE = {
   name: "puddle",
   home: "https://iliazeus.lol/puddle/",
-  addCreation: "https://iliazeus-puddle.web.val.run/creations/",
+  addCreation: "https://iliazeus-puddle.web.val.run/creations",
   getCreation: "https://iliazeus-puddle.web.val.run/creations/",
   // getCreationImage: "TODO", // i have images as data URIs inside creations currently
   getCreations: "https://iliazeus-puddle.web.val.run/creations",
