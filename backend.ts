@@ -47,6 +47,7 @@ app.post("/creations", async function addCreation(c: Context) {
     title: z.string().max(100),
     text: z.string().max(20 * 1024).optional(),
     image: z.string().url().startsWith("data:").max(200 * 1024).optional(),
+    data: z.string().max(20 * 1024).optional(),
   }).strip().parse(await c.req.json());
 
   let creations = await blob.getJSON("/puddle/creations.json");
