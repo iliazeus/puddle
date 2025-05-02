@@ -46,6 +46,17 @@ async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
   return new Blob([bytes], { type: creation[mediaKind].type });
 }
 
+async function migrate() {
+  let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+  for (let creation of creations.items) {
+    if (creation.image) await saveMedia(creation, "image");
+    if (creation.audio) await saveMedia(creation, "audio");
+    if (creation.video) await saveMedia(creation, "video");
+  }
+  await fs.writeFile("./creations.json", JSON.stringify(creations), "utf-8");
+}
+migrate();
+
 app.get("/creations", async function getCreations(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
   for (let creation of creations.items) {
@@ -135,6 +146,13 @@ app.post(
 
     creations.items.unshift(newCreation);
 
+    for (let creation of creations.items) {
+      if (+now - +new Date(creation.time) > 25 * 60 * 60 * 1000) {
+        if (creation.image) await fs.rm(creation.image.path);
+        if (creation.audio) await fs.rm(creation.audio.path);
+        if (creation.video) await fs.rm(creation.video.path);
+      }
+    }
     creations.items = creations.items.filter(
       (x: any) => +now - +new Date(x.time) <= 25 * 60 * 60 * 1000
     );
