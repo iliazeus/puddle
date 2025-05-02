@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -40,47 +40,47 @@
     </main>
 
     <script type="module">
-      // import { fetchJson, postJson } from "./library.js";
-      import { fetchJson, postJson } from "./quirks.js";
+      import { formDataToObject } from "./library.js";
+      import * as pv from "./pondiverse.js";
+      import { instances } from "./instances.js";
 
       let creationsEl = document.querySelector("#creations");
       let postFormEl = document.querySelector("form#post");
       let deleteFormEl = document.querySelector("form#delete");
 
-      let thisInstance = await fetchJson("./instance.json");
-
-      let isTrusted = (uri) => {
+      let uriIsTrusted = (uri) => {
         uri = String(uri);
         if (uri.startsWith("data:")) return true;
-        return thisInstance.trusted.some((x) => uri.startsWith(x));
+        if (uri.startsWIth("https://iliazeus-puddle.web.val.run/")) return true;
+        if (uri.startsWith("https://pondiverse.val.run/")) return true;
+        return false;
       };
 
-      let creationsAsync = (async function* () {
-        let instanceUris = ["./instance.json", "./friends/pondiverse.com.json"];
-
-        for (let instanceUri of instanceUris) {
-          let instance = await fetchJson(instanceUri);
-
-          let nextPageUrl = instance.creations;
-          while (nextPageUrl) {
-            let page = await fetchJson(nextPageUrl);
-            nextPageUrl = page.next;
-
-            yield* page.items;
-          }
+      let creations = [];
+      for (let instance of instances) {
+        try {
+          let instanceCreations = await pv.fetchPondiverseCreations({
+            instance,
+          });
+          creations.push(...instanceCreations);
+        } catch (e) {
+          console.error(e);
         }
-      })();
+      }
 
-      let getNextCreationsPage = async () => {
+      creations.sort((a, b) => +new Date(b.time) - +new Date(a.time));
+
+      let creationPages = [];
+      for (let i = 0; i < creations.length; i += 10) {
+        creationPages.push(creations.slice(i, i + 10));
+      }
+
+      let showNextCreationsPage = () => {
+        let page = creationPages.shift();
+        if (!page) return;
+
         document.querySelector("button#nextPage")?.remove();
-
-        let creation, done;
-        for (let i = 0; i < 5; i++) {
-          let item = await creationsAsync.next();
-          done = item.done;
-          creation = item.value;
-          if (done) break;
-
+        for (let creation of page) {
           creationsEl.innerHTML += `<article class="creation">
               <h2>${creation.title}</h2>
               ${
@@ -92,7 +92,7 @@
             </article>`;
         }
 
-        if (!done) {
+        if (creationPages.length > 0) {
           let button = document.createElement("button");
           button.id = "nextPage";
           button.innerText = "Load more";
@@ -103,8 +103,13 @@
 
       postFormEl.onsubmit = async (e) => {
         e.preventDefault();
-        let instance = await fetchJson("./instance.json");
-        await postJson(instance.creations, new FormData(postFormEl));
+        let response = await fetch(pv.DEFAULT_INSTANCE.addCreation, {
+          method: "post",
+          body: JSON.stringify(
+            await formDataToObject(new FormData(postFormEl))
+          ),
+        });
+        if (!response.ok) throw new Error(response.statusText);
         postFormEl.reset();
         window.location.reload();
       };
@@ -122,7 +127,7 @@
         window.location.reload();
       };
 
-      await getNextCreationsPage();
+      await showNextCreationsPage();
     </script>
   </body>
 </html>
