@@ -54,9 +54,16 @@ app.post("/creations", async function addCreation(c: Context) {
   let lastId = creations.items.at(-1)?.id ?? 0;
   newCreation.id = lastId + 1;
   newCreation.uri = "https://iliazeus-puddle.web.val.run/creations/" + newCreation.id;
-  newCreation.time = new Date().toISOString();
+
+  let now = new Date();
+  newCreation.time = now.toISOString();
 
   creations.items.push(newCreation);
+
+  creations.items = creations.items.filter(
+    (x) => +now - +(new Date(x.time)) <= 25 * 60 * 60 * 1000,
+  );
+
   await blob.setJSON("/puddle/creations.json", creations);
 
   return c.json(newCreation);
