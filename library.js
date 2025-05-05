@@ -11,7 +11,7 @@ export async function formDataToObject(data) {
   return json;
 }
 
-function readFileAsDataUrl(file) {
+export function readFileAsDataUrl(file) {
   return new Promise((rs, rj) => {
     let r = new FileReader();
     r.onload = () => rs(r.result);

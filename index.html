@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html cheat>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -62,10 +62,10 @@
     .card a.badge {
       text-decoration: none;
     }
-    .card .badge.sudo {
+    .sudo {
       display: none;
     }
-    :root[sudo] .card .badge.sudo {
+    :root[sudo] .sudo {
       display: unset;
     }
     .creation .data {
@@ -106,14 +106,23 @@
           <input type="submit" value="Enter" />
         </form>
       </article>
+      <article class="card sudo">
+        <form id="meme" style="width: 100%">
+          <input type="text" name="uri" placeholder="uri" />
+          <input type="text" name="title" placeholder="title" />
+          <input type="text" name="subtitle" placeholder="subtitle" />
+          <input type="submit" value="post" />
+        </form>
+      </article>
     </main>
     <script type="module">
-      import { formDataToObject } from "./library.js";
+      import { formDataToObject, readFileAsDataUrl } from "./library.js";
       import * as pv from "./pondiverse.js";
       import { instances } from "./instances.js";
 
       let creationsEl = document.querySelector("#creations");
       let sudoFormEl = document.querySelector("form#sudo");
+      let memeFormEl = document.querySelector("form#meme");
 
       let uriIsTrusted = (uri) => {
         uri = String(uri);
@@ -129,6 +138,8 @@
           let creations = await pv.fetchPondiverseCreations({ instance });
           for (let creation of creations) {
             creation.instance = instance;
+            if (!creation.uri)
+              creation.uri = instance.getCreation + creation.id;
             allCreations.push(creation);
           }
         } catch (e) {
@@ -185,9 +196,9 @@
                 }">
                   ${creation.instance.name}
                 </a>
-                <span style="--color: grey" class="badge">
+                <a href="${creation.uri}" style="--color: grey" class="badge">
                   ${new Date(creation.time).toLocaleString()}
-                </span>
+                </a>
                 <span style="--color: black; cursor: pointer" class="badge toggle-data">show/hide data</span>
                 <span style="--color: red; cursor: pointer" class="badge sudo delete">delete</span>
                 <div class="data">
@@ -219,14 +230,14 @@
       creationsEl.addEventListener(
         "click",
         async (e) => {
-          if (e.target.closest(".toggle-data")) {
+          if (e.target.closest(".badge.toggle-data")) {
             e.target
               .closest(".creation")
               ?.querySelector(".data")
               ?.toggleAttribute("open");
             return;
           }
-          if (e.target.closest(".delete")) {
+          if (e.target.closest(".badge.delete")) {
             let uri = e.target.closest(".creation")?.dataset.uri;
             await fetch(uri, {
               method: "delete",
@@ -236,6 +247,64 @@
         },
         true
       );
+
+      memeFormEl.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (password !== "konami code") return;
+
+        let template = await (await fetch("./template.svg")).text();
+        let data = Object.fromEntries(new FormData(memeFormEl).entries());
+        let creation = allCreations.find((x) => x.uri === data.uri);
+
+        template = template.replaceAll("${TITLE}", data.title);
+        template = template.replaceAll("${SUBTITLE}", data.subtitle);
+
+        let image = await (
+          await fetch(
+            pv.getPondiverseCreationImageUrl(creation, {
+              instance: creation.instance,
+            })
+          )
+        ).blob();
+
+        template = template.replaceAll(
+          "${IMAGE}",
+          await readFileAsDataUrl(image)
+        );
+        console.log(template);
+
+        let blob = new Blob([template], { type: "image/svg+xml" });
+        let img = document.createElement("img");
+        img.style.display = "none";
+        document.body.appendChild(img);
+        await new Promise((cb) => {
+          img.addEventListener("load", cb);
+          img.src = URL.createObjectURL(blob);
+        });
+
+        let canvas = document.createElement("canvas");
+        canvas.style.display = "none";
+        document.body.appendChild(canvas);
+        canvas.width = 750;
+        canvas.height = 600;
+        canvas.getContext("2d").drawImage(img, 0, 0, 750, 600);
+
+        const response = await fetch(pv.DEFAULT_INSTANCE.addCreation, {
+          method: "POST",
+          body: JSON.stringify({
+            title: creation.title,
+            data: creation.data,
+            type: creation.type,
+            image: canvas.toDataURL("image/png"),
+          }),
+        });
+
+        img.remove();
+        canvas.remove();
+        URL.revokeObjectURL(img.src);
+
+        memeFormEl.reset();
+      });
 
       await showNextCreationsPage();
     </script>
