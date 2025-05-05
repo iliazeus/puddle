@@ -1,55 +1,119 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="./style.css" />
     <title>Ilia's Own Puddle</title>
   </head>
+  <style>
+    .card-container {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: space-around;
+    }
+    .card-container #nextPage {
+      width: 100%;
+      padding: 5px;
+    }
+    .card {
+      max-width: 512px;
+      margin: 5px;
+      padding: 10px;
+      border: 1px solid black;
+      border-radius: 3px;
+    }
+    .card h2 {
+      font-size: 32px;
+      text-align: center;
+      margin: 5px auto;
+    }
+    .card img,
+    .card video {
+      width: 100%;
+      height: 100%;
+      max-width: 512px;
+      max-height: 512px;
+      border: 1px solid black;
+      border-radius: 3px;
+    }
+    .card audio {
+      width: 100%;
+      border-radius: 3px;
+    }
+    .card footer {
+      margin-top: 5px;
+    }
+    .card .badge {
+      color: var(--color);
+      /* color: grey; */
+      border: 1px solid;
+      border-color: var(--color);
+      border-radius: 3px;
+      padding: 3px;
+      margin: 3px;
+    }
+    .card .badge:first-child {
+      margin-left: 0;
+    }
+    .card .badge:last-child {
+      margin-right: 0;
+    }
+    .card a.badge {
+      text-decoration: none;
+    }
+    .card .badge.sudo {
+      display: none;
+    }
+    :root[sudo] .card .badge.sudo {
+      display: unset;
+    }
+    .creation .data {
+      display: none;
+      width: 100%;
+      max-height: 300px;
+    }
+    .creation .data[open] {
+      display: unset;
+    }
+    .creation .data * {
+      overflow: scroll;
+    }
+  </style>
   <body>
-    <main>
-      <h1>Ilia's Own Puddle</h1>
-      <small
-        ><a href="https://github.com/iliazeus/puddle/">source code</a></small
-      >
-      <div id="creations"></div>
-
-      <form id="post" style="display: flex; flex-flow: column">
-        <p>Post a <code>text</code> type creation:</p>
-        <input type="text" name="title" placeholder="title" />
-        <input type="hidden" name="type" value="text" />
-        <!-- <label>
-          Image (optional): <input type="file" name="image" accept="image/*" />
-        </label>
-        <label>
-          Audio (optional): <input type="file" name="audio" accept="audio/*" />
-        </label> -->
-        <textarea
-          style="resize: vertical"
-          name="text"
-          placeholder="your creation text"
-        ></textarea>
-        <input type="submit" value="Post" />
-      </form>
-
-      <details>
-        <summary style="cursor: pointer">danger!</summary>
-        <form id="delete" style="display: flex; flex-flow: column">
-          <input type="text" name="uri" placeholder="creation uri" />
-          <input type="password" name="token" placeholder="password" />
-          <input type="submit" value="delete" />
+    <main id="creations" class="card-container">
+      <article class="card">
+        <h2>Ilia's Own Puddle</h2>
+        <p>
+          This is an instance of the
+          <a href="https://github.com/todepond/pondiverse">pondiverse</a>.
+        </p>
+        <p>It is administered by me, Ilia.</p>
+        <p>
+          This place has zero tolerance for abuse, hate, and other malicious
+          behaviour. If you see something that doesn't belong, please report it
+          to me
+        </p>
+        <p>
+          You can contact me
+          <a href="https://gts.iliazeus.lol/@iliazeus">on fediverse</a>
+          (mastodon, etc), or by emailing at
+          <a href="mailto:iliazeus@proton.me">iliazeus@proton.me</a>
+        </p>
+        <p>Or, if you're me, you can enter <code>sudo</code> mode:</p>
+        <form id="sudo" style="width: 100%">
+          <input type="password" name="password" placeholder="password" />
+          <input type="submit" value="Enter" />
         </form>
-      </details>
+      </article>
     </main>
-
     <script type="module">
       import { formDataToObject } from "./library.js";
       import * as pv from "./pondiverse.js";
       import { instances } from "./instances.js";
 
       let creationsEl = document.querySelector("#creations");
-      let postFormEl = document.querySelector("form#post");
-      let deleteFormEl = document.querySelector("form#delete");
+      let sudoFormEl = document.querySelector("form#sudo");
 
       let uriIsTrusted = (uri) => {
         uri = String(uri);
@@ -75,8 +139,8 @@
       allCreations.sort((a, b) => +new Date(b.time) - +new Date(a.time));
 
       let creationPages = [];
-      for (let i = 0; i < allCreations.length; i += 10) {
-        creationPages.push(allCreations.slice(i, i + 10));
+      for (let i = 0; i < allCreations.length; i += 20) {
+        creationPages.push(allCreations.slice(i, i + 20));
       }
 
       let showNextCreationsPage = () => {
@@ -88,7 +152,21 @@
           creation.image = pv.getPondiverseCreationImageUrl(creation, {
             instance: creation.instance,
           });
-          creationsEl.innerHTML += `<article class="creation">
+          try {
+            creation.prettyData = JSON.stringify(
+              JSON.parse(creation.data),
+              null,
+              2
+            );
+          } catch {
+            creation.prettyData = creation.data;
+          }
+
+          let creationEl = document.createElement("article");
+          creationEl.className = "card creation";
+          creationEl.dataset.uri = creation.uri;
+
+          creationEl.innerHTML = `
               <h2>${creation.title}</h2>
               ${
                 creation.image && uriIsTrusted(creation.image)
@@ -101,7 +179,23 @@
                   : ""
               }
             ${creation.text ? `<p>${creation.text}</p>` : ""}
-            </article>`;
+            <footer>
+                <a style="--color: darkblue" class="badge" href="${
+                  creation.instance.home
+                }">
+                  ${creation.instance.name}
+                </a>
+                <span style="--color: grey" class="badge">
+                  ${new Date(creation.time).toLocaleString()}
+                </span>
+                <span style="--color: black; cursor: pointer" class="badge toggle-data">show/hide data</span>
+                <span style="--color: red; cursor: pointer" class="badge sudo delete">delete</span>
+                <div class="data">
+                  <pre><code>${creation.prettyData}</code></pre>
+                </div>
+            </footer>`;
+
+          creationsEl.append(creationEl);
         }
 
         if (creationPages.length > 0) {
@@ -113,31 +207,35 @@
         }
       };
 
-      postFormEl.onsubmit = async (e) => {
+      let password = null;
+      console.log(sudoFormEl);
+      sudoFormEl.addEventListener("submit", (e) => {
         e.preventDefault();
-        let body = await formDataToObject(new FormData(postFormEl));
-        body.data = JSON.stringify({ text: body.text });
-        let response = await fetch(pv.DEFAULT_INSTANCE.addCreation, {
-          method: "post",
-          body: JSON.stringify(body),
-        });
-        if (!response.ok) throw new Error(response.statusText);
-        postFormEl.reset();
-        window.location.reload();
-      };
+        e.stopPropagation();
+        password = sudoFormEl.elements.password.value;
+        document.documentElement.toggleAttribute("sudo", true);
+      });
 
-      deleteFormEl.onsubmit = async (e) => {
-        e.preventDefault();
-        let data = new FormData(deleteFormEl);
-        let uri = data.get("uri");
-        let token = data.get("token");
-        await fetch(uri, {
-          method: "delete",
-          headers: { authorization: `Bearer ${token}` },
-        });
-        deleteFormEl.reset();
-        window.location.reload();
-      };
+      creationsEl.addEventListener(
+        "click",
+        async (e) => {
+          if (e.target.closest(".toggle-data")) {
+            e.target
+              .closest(".creation")
+              ?.querySelector(".data")
+              ?.toggleAttribute("open");
+            return;
+          }
+          if (e.target.closest(".delete")) {
+            let uri = e.target.closest(".creation")?.dataset.uri;
+            await fetch(uri, {
+              method: "delete",
+              headers: { authorization: `Bearer ${password}` },
+            });
+          }
+        },
+        true
+      );
 
       await showNextCreationsPage();
     </script>
