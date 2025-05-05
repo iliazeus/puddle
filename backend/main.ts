@@ -169,6 +169,7 @@ app.delete(
 );
 
 app.onError(async function onError(e: any, c: Context) {
+  console.error(e);
   if (e instanceof HTTPException) return e.getResponse();
   if (e instanceof ZodError) return c.json(e, { status: 400 });
   if (e.name === "ValTownBlobNotFoundError") return c.notFound();
