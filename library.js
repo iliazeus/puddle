@@ -19,3 +19,10 @@ export function readFileAsDataUrl(file) {
     r.readAsDataURL(file);
   });
 }
+
+// echo -n "your secret" | sha256sum
+export async function hashToHex(algo, data) {
+  if (typeof data === "string") data = new TextEncoder().encode(data);
+  let hash = await crypto.subtle.digest(algo, data);
+  return hash.map((b) => b.toString(16).padStart(2, "0")).join("");
+}

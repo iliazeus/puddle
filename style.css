@@ -1,30 +1,76 @@
-body {
+.card-container {
   display: flex;
-  flex-flow: column;
-  justify-content: center;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-between;
 }
-
-main {
+.card-container #nextPage {
   width: 100%;
-  margin: auto;
+  padding: 5px;
+}
+.card {
   max-width: 512px;
-  display: flex;
-  flex-flow: column;
+  margin: 5px;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 3px;
 }
-
-pre {
-  overflow-x: scroll;
-}
-
-#creations > * {
-  margin-bottom: 50px;
-}
-
-#creations img {
-  max-width: 100%;
-  max-height: 512px;
-}
-
-#creations audio {
+.card h2 {
   width: 100%;
+  max-width: 80vw;
+  word-wrap: break-word;
+  font-size: 32px;
+  text-align: center;
+  margin: 5px auto;
+}
+.card img,
+.card video {
+  width: 100%;
+  height: 100%;
+  max-width: 512px;
+  max-height: 512px;
+  border: 1px solid black;
+  border-radius: 3px;
+}
+.card audio {
+  width: 100%;
+  border-radius: 3px;
+}
+.card footer {
+  margin-top: 5px;
+}
+.badge {
+  display: inline-block;
+  color: var(--color);
+  border: 1px solid;
+  border-color: var(--color);
+  border-radius: 3px;
+  padding: 3px;
+  margin: 3px;
+  text-wrap: nowrap;
+}
+.card a.badge {
+  text-decoration: none;
+}
+.sudo {
+  display: none;
+}
+:root[sudo] .sudo {
+  display: unset;
+}
+:root[sudo] .sudo.badge {
+  display: inline-block;
+}
+.creation .data {
+  display: none;
+  width: 100%;
+  max-width: 80vw;
+  max-height: 300px;
+}
+.creation .data[open] {
+  display: unset;
+}
+.creation .data * {
+  max-width: 80vw;
+  overflow: scroll;
 }

@@ -28,6 +28,8 @@ let auth = bearerAuth({
   },
 });
 
+app.get("/auth-check", auth, (c: Context) => c.json({ ok: true }));
+
 async function saveMedia(creation: any, mediaKind: string) {
   await fs.mkdir(`./${mediaKind}`, { recursive: true });
 

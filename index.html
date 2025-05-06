@@ -1,90 +1,11 @@
 <!DOCTYPE html>
-<html cheat>
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
     <title>Ilia's Own Puddle</title>
   </head>
-  <style>
-    .card-container {
-      display: flex;
-      flex-flow: row wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .card-container #nextPage {
-      width: 100%;
-      padding: 5px;
-    }
-    .card {
-      max-width: 512px;
-      margin: 5px;
-      padding: 10px;
-      border: 1px solid black;
-      border-radius: 3px;
-    }
-    .card h2 {
-      width: 100%;
-      max-width: 80vw;
-      word-wrap: break-word;
-      font-size: 32px;
-      text-align: center;
-      margin: 5px auto;
-    }
-    .card img,
-    .card video {
-      width: 100%;
-      height: 100%;
-      max-width: 512px;
-      max-height: 512px;
-      border: 1px solid black;
-      border-radius: 3px;
-    }
-    .card audio {
-      width: 100%;
-      border-radius: 3px;
-    }
-    .card footer {
-      margin-top: 5px;
-    }
-    .bagdes {
-      display: flex;
-      flex-flow: row wrap;
-      justify-content: start;
-    }
-    .badge {
-      display: inline-block;
-      color: var(--color);
-      border: 1px solid;
-      border-color: var(--color);
-      border-radius: 3px;
-      padding: 3px;
-      margin: 3px;
-      text-wrap: nowrap;
-    }
-    .card a.badge {
-      text-decoration: none;
-    }
-    .sudo {
-      display: none;
-    }
-    :root[sudo] .sudo {
-      display: unset;
-    }
-    .creation .data {
-      display: none;
-      width: 100%;
-      max-width: 80vw;
-      max-height: 300px;
-    }
-    .creation .data[open] {
-      display: unset;
-    }
-    .creation .data * {
-      max-width: 80vw;
-      overflow: scroll;
-    }
-  </style>
   <body>
     <main id="creations" class="card-container">
       <article class="card">
@@ -111,14 +32,6 @@
           <input type="submit" value="Enter" />
         </form>
       </article>
-      <article class="card sudo">
-        <form id="meme" style="width: 100%">
-          <input type="text" name="uri" placeholder="uri" />
-          <input type="text" name="title" placeholder="title" />
-          <input type="text" name="subtitle" placeholder="subtitle" />
-          <input type="submit" value="post" />
-        </form>
-      </article>
     </main>
     <script type="module">
       import { formDataToObject, readFileAsDataUrl } from "./library.js";
@@ -127,7 +40,6 @@
 
       let creationsEl = document.querySelector("#creations");
       let sudoFormEl = document.querySelector("form#sudo");
-      let memeFormEl = document.querySelector("form#meme");
 
       let uriIsTrusted = (uri) => {
         uri = String(uri);
@@ -195,7 +107,7 @@
                 : ""
             }
             ${creation.text ? `<p>${creation.text}</p>` : ""}
-            <footer class="badges">
+            <footer class="badge-container">
               <a
                 style="--color: darkblue" class="badge"
                 href="${creation.instance.home}"
@@ -210,6 +122,9 @@
               <span
                 style="--color: black; cursor: pointer" class="badge toggle-data"
                 >show/hide data</span>
+              <a
+                style="--color: orange"class="badge sudo"
+                href="./secret-tool.html?creation=${creation.uri}">rememe</a>
               <span
                 style="--color: red; cursor: pointer" class="badge sudo delete"
                 >delete</span>
@@ -232,10 +147,17 @@
 
       let password = null;
       console.log(sudoFormEl);
-      sudoFormEl.addEventListener("submit", (e) => {
+      sudoFormEl.addEventListener("submit", async (e) => {
         e.preventDefault();
         e.stopPropagation();
         password = sudoFormEl.elements.password.value;
+        let response = await fetch("https://api.iliazeus.lol/puddle/auth-check", {
+          headers: { authorization: `Bearer ${password}` },
+        });
+        if (!response.ok && password !== "konami code") return;
+        sudoFormEl
+          .querySelectorAll("input")
+          .forEach((x) => (x.disabled = true));
         document.documentElement.toggleAttribute("sudo", true);
       });
 
@@ -259,64 +181,6 @@
         },
         true
       );
-
-      memeFormEl.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        if (password !== "konami code") return;
-
-        let template = await (await fetch("./template.svg")).text();
-        let data = Object.fromEntries(new FormData(memeFormEl).entries());
-        let creation = allCreations.find((x) => x.uri === data.uri);
-
-        template = template.replaceAll("${TITLE}", data.title);
-        template = template.replaceAll("${SUBTITLE}", data.subtitle);
-
-        let image = await (
-          await fetch(
-            pv.getPondiverseCreationImageUrl(creation, {
-              instance: creation.instance,
-            })
-          )
-        ).blob();
-
-        template = template.replaceAll(
-          "${IMAGE}",
-          await readFileAsDataUrl(image)
-        );
-        console.log(template);
-
-        let blob = new Blob([template], { type: "image/svg+xml" });
-        let img = document.createElement("img");
-        img.style.display = "none";
-        document.body.appendChild(img);
-        await new Promise((cb) => {
-          img.addEventListener("load", cb);
-          img.src = URL.createObjectURL(blob);
-        });
-
-        let canvas = document.createElement("canvas");
-        canvas.style.display = "none";
-        document.body.appendChild(canvas);
-        canvas.width = 750;
-        canvas.height = 600;
-        canvas.getContext("2d").drawImage(img, 0, 0, 750, 600);
-
-        const response = await fetch(pv.DEFAULT_INSTANCE.addCreation, {
-          method: "POST",
-          body: JSON.stringify({
-            title: creation.title,
-            data: creation.data,
-            type: creation.type,
-            image: canvas.toDataURL("image/png"),
-          }),
-        });
-
-        img.remove();
-        canvas.remove();
-        URL.revokeObjectURL(img.src);
-
-        memeFormEl.reset();
-      });
 
       await showNextCreationsPage();
     </script>
