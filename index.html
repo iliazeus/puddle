@@ -10,7 +10,7 @@
       display: flex;
       flex-flow: row wrap;
       align-items: center;
-      justify-content: space-around;
+      justify-content: space-between;
     }
     .card-container #nextPage {
       width: 100%;
@@ -24,6 +24,9 @@
       border-radius: 3px;
     }
     .card h2 {
+      width: 100%;
+      max-width: 80vw;
+      word-wrap: break-word;
       font-size: 32px;
       text-align: center;
       margin: 5px auto;
@@ -44,20 +47,20 @@
     .card footer {
       margin-top: 5px;
     }
-    .card .badge {
+    .bagdes {
+      display: flex;
+      flex-flow: row wrap;
+      justify-content: start;
+    }
+    .badge {
+      display: inline-block;
       color: var(--color);
-      /* color: grey; */
       border: 1px solid;
       border-color: var(--color);
       border-radius: 3px;
       padding: 3px;
       margin: 3px;
-    }
-    .card .badge:first-child {
-      margin-left: 0;
-    }
-    .card .badge:last-child {
-      margin-right: 0;
+      text-wrap: nowrap;
     }
     .card a.badge {
       text-decoration: none;
@@ -71,12 +74,14 @@
     .creation .data {
       display: none;
       width: 100%;
+      max-width: 80vw;
       max-height: 300px;
     }
     .creation .data[open] {
       display: unset;
     }
     .creation .data * {
+      max-width: 80vw;
       overflow: scroll;
     }
   </style>
@@ -178,33 +183,40 @@
           creationEl.dataset.uri = creation.uri;
 
           creationEl.innerHTML = `
-              <h2>${creation.title}</h2>
-              ${
-                creation.image && uriIsTrusted(creation.image)
-                  ? `<img src="${creation.image}" />`
-                  : ""
-              }
-              ${
-                creation.audio && uriIsTrusted(creation.audio)
-                  ? `<audio controls src="${creation.audio}"></audio>`
-                  : ""
-              }
+            <h2>${creation.title}</h2>
+            ${
+              creation.image && uriIsTrusted(creation.image)
+                ? `<img src="${creation.image}" />`
+                : ""
+            }
+            ${
+              creation.audio && uriIsTrusted(creation.audio)
+                ? `<audio controls src="${creation.audio}"></audio>`
+                : ""
+            }
             ${creation.text ? `<p>${creation.text}</p>` : ""}
-            <footer>
-                <a style="--color: darkblue" class="badge" href="${
-                  creation.instance.home
-                }">
-                  ${creation.instance.name}
-                </a>
-                <a href="${creation.uri}" style="--color: grey" class="badge">
-                  ${new Date(creation.time).toLocaleString()}
-                </a>
-                <span style="--color: black; cursor: pointer" class="badge toggle-data">show/hide data</span>
-                <span style="--color: red; cursor: pointer" class="badge sudo delete">delete</span>
-                <div class="data">
-                  <pre><code>${creation.prettyData}</code></pre>
-                </div>
-            </footer>`;
+            <footer class="badges">
+              <a
+                style="--color: darkblue" class="badge"
+                href="${creation.instance.home}"
+                >from: ${creation.instance.name}</a>
+              <span
+                style="--color: grey" class="badge"
+                >type: ${creation.type}</span>
+              <a
+                style="--color: grey" class="badge"
+                href="${creation.uri}"
+                >${new Date(creation.time).toLocaleString()}</a>
+              <span
+                style="--color: black; cursor: pointer" class="badge toggle-data"
+                >show/hide data</span>
+              <span
+                style="--color: red; cursor: pointer" class="badge sudo delete"
+                >delete</span>
+            </footer>
+            <div class="data">
+              <pre><code>${creation.prettyData}</code></pre>
+            </div>`;
 
           creationsEl.append(creationEl);
         }
