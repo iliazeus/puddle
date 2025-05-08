@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Secret Tool | Ilia's Own Puddle</title>
+  </head>
+  <body>
+    <main>
+      <canvas id="cart" width="300" height="300"></canvas>
+      <a id="link">Download</a>
+    </main>
+    <script type="module">
+      import { formDataToObject, readFileAsDataUrl } from "../library.js";
+      import * as pv from "../pondiverse.js";
+      import { stores } from "../stores.js";
+
+      async function makeCart({ canvas, link }) {
+        let creationUri = new URL(window.location).searchParams.get("creation");
+        let store = stores.find((x) => creationUri.startsWith(x.getCreation));
+
+        if (!creationUri || !store) return;
+
+        let creation = await (await fetch(creationUri)).json();
+        creation.store = store;
+
+        let creationImageUri = pv.getPondiverseCreationImageUrl(creation, {
+          store,
+        });
+        if (!creationImageUri) {
+          // transparent 1x1 px
+          creationImageUri =
+            "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+        }
+
+        let image = await (await fetch(creationImageUri)).blob();
+        image = await window.createImageBitmap(image);
+
+        let ratio = 1;
+        if (image.width > 256) ratio = Math.min(ratio, 256 / image.width);
+        if (image.height > 256) ratio = Math.min(ratio, 256 / image.height);
+
+        let targetW = image.width * ratio;
+        let targetH = image.height * ratio;
+
+        canvas.width = 300;
+        canvas.height = 350;
+        let ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "grey";
+        ctx.strokeStyle = "1px black";
+        ctx.moveTo(0 + 0.5, 0 + 0.5);
+        ctx.lineTo(300 - 0.5, 0 + 0.5);
+        ctx.lineTo(300 - 0.5, 330 - 0.5);
+        ctx.lineTo(280 - 0.5, 350 - 0.5);
+        ctx.lineTo(0 + 0.5, 350 - 0.5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.drawImage(
+          image,
+          150 - targetW / 2,
+          200 - targetH / 2,
+          targetW,
+          targetH
+        );
+        ctx.strokeRect(150 - 128 + 0.5, 200 - 128 + 0.5, 256, 256);
+
+        ctx.fillStyle = "ivory";
+        ctx.fillRect(22, 15, 256, 50);
+        ctx.strokeRect(22 + 0.5, 15 + 0.5, 256, 50);
+
+        ctx.font = "20px cursive";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillStyle = "black";
+        ctx.fillText(creation.title, 30, 20, 240);
+        ctx.font = "15px cursive";
+        ctx.fillText(creation.type, 30, 40, 240);
+
+        let cart = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        let dataToEncode = {
+          type: creation.type,
+          title: creation.title,
+          data: creation.data,
+        };
+        let encodedData = new TextEncoder().encode(
+          JSON.stringify(dataToEncode)
+        );
+
+        let p = 0;
+        let write2Bits = (x) => {
+          if (p % 4 === 3) p += 1;
+          cart.data[p] = (cart.data[p] & 0xfc) | (x * 0x03);
+          p += 1;
+        };
+        let writeByte = (b) => {
+          write2Bits((b >> 0) & 3);
+          write2Bits((b >> 2) & 3);
+          write2Bits((b >> 4) & 3);
+          write2Bits((b >> 6) & 3);
+        };
+
+        writeByte((encodedData.length >> 24) & 0xff);
+        writeByte((encodedData.length >> 16) & 0xff);
+        writeByte((encodedData.length >> 8) & 0xff);
+        writeByte((encodedData.length >> 0) & 0xff);
+        encodedData.forEach((b) => writeByte(b));
+
+        ctx.putImageData(cart, 0, 0);
+
+        link.href = canvas.toDataURL("image/png");
+        link.download = "cart.png";
+      }
+
+      await makeCart({
+        canvas: document.querySelector("canvas#cart"),
+        link: document.querySelector("a#link"),
+      });
+    </script>
+  </body>
+</html>
