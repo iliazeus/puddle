@@ -51,7 +51,7 @@ async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
 
 app.get("/creations", async function getCreations(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
-  if (c.req.query("all") !== undefined) {
+  if (c.req.query("all") === undefined) {
     creations.items = creations.items.filter((x: any) => !x.hidden);
   }
   for (let creation of creations.items) {
