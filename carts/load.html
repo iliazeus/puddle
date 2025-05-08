@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Secret Tool | Ilia's Own Puddle</title>
+  </head>
+  <body>
+    <main>
+      <pre id="data"></pre>
+      <form id="load">
+        <label>
+          Cart: <input type="file" name="cart" accept="image/png" />
+        </label>
+        <label>
+          Tool:
+          <select name="tool" id="tool"></select>
+        </label>
+        <input type="submit" value="Load" />
+      </form>
+      <div id="error" style="color: darkred"></div>
+    </main>
+    <script type="module">
+      import { formDataToObject, readFileAsDataUrl } from "../library.js";
+      import * as pv from "../pondiverse.js";
+      import { stores } from "../stores.js";
+      import { tools } from "../tools.js";
+
+      tools.sort((a, b) => a.name.localeCompare(b.name));
+
+      let toolsEl = document.querySelector("select#tool");
+      for (let tool of tools) {
+        if (!tool.open) continue;
+        let option = document.createElement("option");
+        option.value = tool.open;
+        option.innerText = tool.name;
+        toolsEl.appendChild(option);
+      }
+
+      async function loadCart(file, toolOpen) {
+        let canvas = document.createElement("canvas");
+        canvas.width = 300;
+        canvas.height = 350;
+
+        let ctx = canvas.getContext("2d");
+        ctx.drawImage(await createImageBitmap(file), 0, 0);
+        let cart = ctx.getImageData(0, 0, 300, 350);
+
+        let p = 0;
+        let read2Bits = () => {
+          if (p % 4 === 3) p += 1;
+          let v = cart.data[p] & 0x03;
+          p += 1;
+          return v;
+        };
+        let readByte = () => {
+          let v = 0;
+          v |= read2Bits() << 0;
+          v |= read2Bits() << 2;
+          v |= read2Bits() << 4;
+          v |= read2Bits() << 6;
+          return v;
+        };
+        let readInt32 = () => {
+          let v = 0;
+          v |= readByte() << 0;
+          v |= readByte() << 8;
+          v |= readByte() << 16;
+          v |= readByte() << 24;
+          return v;
+        };
+        let readString = () => {
+          let n = readInt32();
+          let bs = new Uint8Array(n);
+          for (let i = 0; i < n; i++) bs[i] = readByte();
+          return new TextDecoder().decode(bs);
+        };
+
+        let encodedData = JSON.parse(readString());
+        document.querySelector("#data").innerText = JSON.stringify(
+          encodedData,
+          null,
+          2
+        );
+
+        let creation = {
+          id: Date.now(),
+          title: encodedData.title,
+          type: encodedData.type,
+          data: encodedData.data,
+          // image: canvas.toDataURL("image/png"),
+        };
+
+        let creationFile = new File(
+          [JSON.stringify(creation)],
+          (creation.title.toLowerCase().replaceAll(/[^a-z0-9-_]+/g, "_") ||
+            "cart") + ".json",
+          {
+            type: "application/json",
+          }
+        );
+
+        // let body = new FormData();
+        // body.set(
+        //   "file",
+        //   creationFile
+        // );
+
+        // let response = await fetch("https://tmpfiles.org/api/v1/upload", {
+        //   method: "POST",
+        //   body,
+        // });
+        // if (!response.ok) throw new Error(await response.text());
+
+        // let creationUrl = (await response.json()).data.url;
+
+        let creationUrl = await readFileAsDataUrl(creationFile);
+
+        window.location = toolOpen + encodeURI(creationUrl);
+      }
+
+      document.querySelector("form#load").onsubmit = async (e) => {
+        e.preventDefault();
+        try {
+          let formData = new FormData(document.querySelector("form#load"));
+          await loadCart(formData.get("cart"), formData.get("tool"));
+        } catch (e) {
+          document.querySelector("#error").innerText = e;
+          throw e;
+        }
+      };
+    </script>
+  </body>
+</html>

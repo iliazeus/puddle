@@ -10,6 +10,7 @@
     <main>
       <canvas id="cart" width="300" height="300"></canvas>
       <a id="link">Download</a>
+      <div id="error" style="color: darkred"></div>
     </main>
     <script type="module">
       import { formDataToObject, readFileAsDataUrl } from "../library.js";
@@ -87,14 +88,11 @@
           title: creation.title,
           data: creation.data,
         };
-        let encodedData = new TextEncoder().encode(
-          JSON.stringify(dataToEncode)
-        );
 
         let p = 0;
         let write2Bits = (x) => {
           if (p % 4 === 3) p += 1;
-          cart.data[p] = (cart.data[p] & 0xfc) | (x * 0x03);
+          cart.data[p] = (cart.data[p] & 0xfc) | (x & 0x03);
           p += 1;
         };
         let writeByte = (b) => {
@@ -103,23 +101,38 @@
           write2Bits((b >> 4) & 3);
           write2Bits((b >> 6) & 3);
         };
+        let writeInt32 = (x) => {
+          writeByte((x >> 0) & 0xff);
+          writeByte((x >> 8) & 0xff);
+          writeByte((x >> 16) & 0xff);
+          writeByte((x >> 24) & 0xff);
+        };
+        let writeString = (s) => {
+          writeInt32(s.length);
+          for (let b of new TextEncoder().encode(s)) {
+            writeByte(b);
+          }
+        };
 
-        writeByte((encodedData.length >> 24) & 0xff);
-        writeByte((encodedData.length >> 16) & 0xff);
-        writeByte((encodedData.length >> 8) & 0xff);
-        writeByte((encodedData.length >> 0) & 0xff);
-        encodedData.forEach((b) => writeByte(b));
+        writeString(JSON.stringify(dataToEncode));
 
         ctx.putImageData(cart, 0, 0);
 
         link.href = canvas.toDataURL("image/png");
-        link.download = "cart.png";
+        link.download =
+          (creation.title.toLowerCase().replaceAll(/[^a-z0-9-_]+/g, "_") ||
+            "cart") + ".png";
       }
 
-      await makeCart({
-        canvas: document.querySelector("canvas#cart"),
-        link: document.querySelector("a#link"),
-      });
+      try {
+        await makeCart({
+          canvas: document.querySelector("canvas#cart"),
+          link: document.querySelector("a#link"),
+        });
+      } catch (e) {
+        document.querySelector("#error").innerText = e;
+        throw e;
+      }
     </script>
   </body>
 </html>
