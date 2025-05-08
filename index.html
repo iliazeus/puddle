@@ -14,7 +14,9 @@
           This is a store and a client of the
           <a href="https://github.com/todepond/pondiverse">pondiverse</a>.
         </p>
-        <p>It is administered by me, <a href="https://iliazeus.lol">Ilia</a>.</p>
+        <p>
+          It is administered by me, <a href="https://iliazeus.lol">Ilia</a>.
+        </p>
         <p>
           This place has zero tolerance for abuse, hate, and other malicious
           behaviour. If you see something that doesn't belong, please report it
@@ -56,8 +58,7 @@
           let creations = await pv.fetchPondiverseCreations({ store });
           for (let creation of creations) {
             creation.store = store;
-            if (!creation.uri)
-              creation.uri = store.getCreation + creation.id;
+            if (!creation.uri) creation.uri = store.getCreation + creation.id;
             allCreations.push(creation);
           }
         } catch (e) {
@@ -123,8 +124,11 @@
               <span
                 style="--color: black; cursor: pointer" class="badge toggle-data"
                 >show/hide data</span>
+              <a target="_blank"
+                style="--color: orange" class="badge"
+                href="./carts/make.html?creation=${creation.uri}">get cart</a>
               <a
-                style="--color: orange"class="badge sudo"
+                style="--color: orange" class="badge sudo"
                 href="./secret-tool.html?creation=${creation.uri}">rememe</a>
               <span
                 style="--color: red; cursor: pointer" class="badge sudo delete"
@@ -152,9 +156,12 @@
         e.preventDefault();
         e.stopPropagation();
         password = sudoFormEl.elements.password.value;
-        let response = await fetch("https://api.iliazeus.lol/puddle/auth-check", {
-          headers: { authorization: `Bearer ${password}` },
-        });
+        let response = await fetch(
+          "https://api.iliazeus.lol/puddle/auth-check",
+          {
+            headers: { authorization: `Bearer ${password}` },
+          }
+        );
         if (!response.ok && password !== "konami code") return;
         sudoFormEl
           .querySelectorAll("input")

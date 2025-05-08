@@ -92,14 +92,14 @@
           // image: canvas.toDataURL("image/png"),
         };
 
-        let creationFile = new File(
-          [JSON.stringify(creation)],
-          (creation.title.toLowerCase().replaceAll(/[^a-z0-9-_]+/g, "_") ||
-            "cart") + ".json",
-          {
-            type: "application/json",
-          }
-        );
+        // let creationFile = new File(
+        //   [JSON.stringify(creation)],
+        //   (creation.title.toLowerCase().replaceAll(/[^a-z0-9-_]+/g, "_") ||
+        //     "cart") + ".json",
+        //   {
+        //     type: "application/json",
+        //   }
+        // );
 
         // let body = new FormData();
         // body.set(
@@ -115,7 +115,10 @@
 
         // let creationUrl = (await response.json()).data.url;
 
-        let creationUrl = await readFileAsDataUrl(creationFile);
+        // let creationUrl = await readFileAsDataUrl(creationFile);
+
+        let creationUrl =
+          "data:application/json," + encodeURI(JSON.stringify(creation));
 
         window.location = toolOpen + encodeURI(creationUrl);
       }
