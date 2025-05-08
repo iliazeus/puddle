@@ -2,7 +2,7 @@
 // PONDIVERSE CONSTANTS //
 //======================//
 // Configure these to your needs
-export const DEFAULT_INSTANCE = {
+export const DEFAULT_STORE = {
   name: "puddle",
   home: "https://iliazeus.lol/puddle/",
   addCreation: "https://api.iliazeus.lol/puddle/creations",
@@ -129,9 +129,9 @@ const PONDIVERSE_BUTTON_STYLE = `
 //============================//
 // For getting a page-ful of creations
 export async function fetchPondiverseCreations({
-  instance = DEFAULT_INSTANCE,
+  store = DEFAULT_STORE,
 } = {}) {
-  const response = await fetch(instance.getCreations);
+  const response = await fetch(store.getCreations);
   const json = await response.json();
   return json.rows ?? json.items;
 }
@@ -142,13 +142,13 @@ export async function fetchPondiverseCreations({
 // For getting a single creation by its id
 export async function fetchPondiverseCreation(
   id,
-  { instance = DEFAULT_INSTANCE } = {}
+  { store = DEFAULT_STORE } = {}
 ) {
   if (id === undefined || id === null) {
     // bad code only
     throw new Error("You need to provide an id to fetch a creation");
   }
-  let url = instance.getCreation + id;
+  let url = store.getCreation + id;
   const idNumber = parseInt(id);
   if (isNaN(idNumber)) {
     if (!id.startsWith("http") && !id.startsWith("localhost")) {
@@ -171,15 +171,15 @@ export async function fetchPondiverseCreation(
 // Get the image URL for a creation
 export function getPondiverseCreationImageUrl(
   creation,
-  { instance = DEFAULT_INSTANCE } = {}
+  { store = DEFAULT_STORE } = {}
 ) {
   if (creation.image) {
     return creation.image;
   }
-  if (!instance.getCreationImage) {
+  if (!store.getCreationImage) {
     return null;
   }
-  return instance.getCreationImage + creation.id;
+  return store.getCreationImage + creation.id;
 }
 
 //=======================//
@@ -187,7 +187,7 @@ export function getPondiverseCreationImageUrl(
 //=======================//
 export function addPondiverseButton(
   getPondiverseCreation,
-  { instance = DEFAULT_INSTANCE } = {}
+  { store = DEFAULT_STORE } = {}
 ) {
   window.getPondiverseCreation = getPondiverseCreation;
   const styleSheet = document.createElement("style");
@@ -210,7 +210,7 @@ export function addPondiverseButton(
 
   dialog.innerHTML = `
   <form>
-  <p>Do you want to share your creation to <a href="${instance.home}">${instance.name}</a>?</p>
+  <p>Do you want to share your creation to <a href="${store.home}">${store.name}</a>?</p>
   <p>It will then become part of the <a href="https://pondiverse.com">Pondiverse</a>.</p>
   <p><img id="preview-image" src="" alt="Thumbnail of your creation"></p>
   <label for="name">Title</label>
@@ -287,7 +287,7 @@ export function addPondiverseButton(
     publishButton.textContent = "Publishing...";
     publishButton.style.cursor = "not-allowed";
 
-    const response = await fetch(instance.addCreation, {
+    const response = await fetch(store.addCreation, {
       method: "POST",
       body: JSON.stringify(request),
     });

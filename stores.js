@@ -1,4 +1,4 @@
-export const instances = [
+export const stores = [
   {
     name: "todepondiverse",
     home: "https://pondiverse.com/",

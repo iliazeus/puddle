@@ -1,9 +1,9 @@
 // import { fetchJson, postJson } from "./library.js";
 import { fetchJson, postJson } from "./quirks.js";
 
-export async function addPondiverseButton(instanceUri, getPondiverseCreation) {
+export async function addPondiverseButton(storeUri, getPondiverseCreation) {
   window.getPondiverseCreation = getPondiverseCreation;
-  const instance = await fetchJson(instanceUri);
+  const store = await fetchJson(storeUri);
 
   const style = `
   .puddle-button-container {
@@ -140,7 +140,7 @@ export async function addPondiverseButton(instanceUri, getPondiverseCreation) {
 
   dialog.innerHTML = `
   <form>
-  <p>Do you want to share your creation to <a href="${instance.home}">${instance.name}</a>?</p>
+  <p>Do you want to share your creation to <a href="${store.home}">${store.name}</a>?</p>
   <p>It will then become part of the <a href="https://pondiverse.com">Pondiverse</a>.</p>
   <p>All creations get deleted after 25 hours.</p>
   <p><img id="preview-image" src="" alt="Thumbnail of your creation"></p>
@@ -217,7 +217,7 @@ export async function addPondiverseButton(instanceUri, getPondiverseCreation) {
     publishButton.style.cursor = "not-allowed";
 
     try {
-      await postJson(instance.creations, request);
+      await postJson(store.creations, request);
 
       closePondiverseDialog();
     } catch (e) {

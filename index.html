@@ -11,7 +11,7 @@
       <article class="card">
         <h2>Ilia's Own Puddle</h2>
         <p>
-          This is an instance of the
+          This is a store and a client of the
           <a href="https://github.com/todepond/pondiverse">pondiverse</a>.
         </p>
         <p>It is administered by me, Ilia.</p>
@@ -36,7 +36,7 @@
     <script type="module">
       import { formDataToObject, readFileAsDataUrl } from "./library.js";
       import * as pv from "./pondiverse.js";
-      import { instances } from "./instances.js";
+      import { stores } from "./stores.js";
 
       let creationsEl = document.querySelector("#creations");
       let sudoFormEl = document.querySelector("form#sudo");
@@ -50,13 +50,13 @@
       };
 
       let allCreations = [];
-      for (let instance of instances) {
+      for (let store of stores) {
         try {
-          let creations = await pv.fetchPondiverseCreations({ instance });
+          let creations = await pv.fetchPondiverseCreations({ store });
           for (let creation of creations) {
-            creation.instance = instance;
+            creation.store = store;
             if (!creation.uri)
-              creation.uri = instance.getCreation + creation.id;
+              creation.uri = store.getCreation + creation.id;
             allCreations.push(creation);
           }
         } catch (e) {
@@ -78,7 +78,7 @@
         document.querySelector("button#nextPage")?.remove();
         for (let creation of page) {
           creation.image = pv.getPondiverseCreationImageUrl(creation, {
-            instance: creation.instance,
+            store: creation.store,
           });
           try {
             creation.prettyData = JSON.stringify(
@@ -110,8 +110,8 @@
             <footer class="badge-container">
               <a
                 style="--color: darkblue" class="badge"
-                href="${creation.instance.home}"
-                >from: ${creation.instance.name}</a>
+                href="${creation.store.home}"
+                >from: ${creation.store.name}</a>
               <span
                 style="--color: grey" class="badge"
                 >type: ${creation.type}</span>
