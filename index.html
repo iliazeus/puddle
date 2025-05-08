@@ -28,11 +28,26 @@
           (mastodon, etc), or by emailing at
           <a href="mailto:iliazeus@proton.me">iliazeus@proton.me</a>
         </p>
-        <p>Or, if you're me, you can enter <code>sudo</code> mode:</p>
-        <form id="sudo" style="width: 100%">
+        <form id="sudo" style="width: 100%; display: none">
           <input type="password" name="password" placeholder="password" />
           <input type="submit" value="Enter" />
         </form>
+        <footer class="badge-container">
+          <a class="badge" style="--color: orange" href="/carts/load.html">
+            load a cart
+          </a>
+          <span
+            class="badge"
+            id="sudo-badge"
+            style="--color: darkred; cursor: pointer"
+          >
+            sudo
+          </span>
+          <script>
+            document.querySelector("#sudo-badge").onclick = () =>
+              (document.querySelector("form#sudo").style.display = "unset");
+          </script>
+        </footer>
       </article>
     </main>
     <script type="module">

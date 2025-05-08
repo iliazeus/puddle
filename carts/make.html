@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -7,8 +7,11 @@
     <title>Secret Tool | Ilia's Own Puddle</title>
   </head>
   <body>
+    <header>
+      <a href="..">back to puddle</a>
+    </header>
     <main>
-      <p>click to download</p>
+      <p>click the cart to download</p>
       <a id="link">
         <canvas id="cart" width="300" height="300"></canvas>
       </a>
@@ -62,6 +65,8 @@
         ctx.fill();
         ctx.stroke();
 
+        ctx.fillStyle = "ivory";
+        ctx.fillRect(150 - 128, 200 - 128, 256, 256);
         ctx.drawImage(
           image,
           150 - targetW / 2,
