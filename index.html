@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -39,6 +39,10 @@
       import { formDataToObject, readFileAsDataUrl } from "./library.js";
       import * as pv from "./pondiverse.js";
       import { stores } from "./stores.js";
+
+      if (new URL(window.location).searchParams.has("all")) {
+        stores.find((x) => x.name === "puddle").getCreations += "?all";
+      }
 
       let creationsEl = document.querySelector("#creations");
       let sudoFormEl = document.querySelector("form#sudo");
@@ -127,6 +131,12 @@
               <a target="_blank"
                 style="--color: orange" class="badge"
                 href="./carts/make.html?creation=${creation.uri}">get cart</a>
+              <span class="badge"
+                style="--color: grey; display: ${creation.hidden ? "unset" : "none"}"
+                >hidden</span>
+              <span class="badge"
+                style="--color: grey; display: ${creation.ttl ? "unset" : "none"}"
+                >TTL: ${(creation.ttl / (60 * 1000)).toFixed(2)} min</span>
               <a
                 style="--color: orange" class="badge sudo"
                 href="./secret-tool.html?creation=${creation.uri}">rememe</a>

@@ -85,42 +85,22 @@
         );
 
         let creation = {
-          id: Date.now(),
           title: encodedData.title,
           type: encodedData.type,
           data: encodedData.data,
-          // image: canvas.toDataURL("image/png"),
+          image: canvas.toDataURL("image/png"),
+          hidden: true,
+          ttl: 5 * 60 * 1000,
         };
 
-        // let creationFile = new File(
-        //   [JSON.stringify(creation)],
-        //   (creation.title.toLowerCase().replaceAll(/[^a-z0-9-_]+/g, "_") ||
-        //     "cart") + ".json",
-        //   {
-        //     type: "application/json",
-        //   }
-        // );
+        let response = await fetch(pv.DEFAULT_STORE.addCreation, {
+          method: "POST",
+          body: JSON.stringify(creation),
+        });
+        if (!response.ok) throw new Error(await response.text());
 
-        // let body = new FormData();
-        // body.set(
-        //   "file",
-        //   creationFile
-        // );
-
-        // let response = await fetch("https://tmpfiles.org/api/v1/upload", {
-        //   method: "POST",
-        //   body,
-        // });
-        // if (!response.ok) throw new Error(await response.text());
-
-        // let creationUrl = (await response.json()).data.url;
-
-        // let creationUrl = await readFileAsDataUrl(creationFile);
-
-        let creationUrl =
-          "data:application/json," + encodeURI(JSON.stringify(creation));
-
-        window.location = toolOpen + encodeURI(creationUrl);
+        let creationUri = (await response.json()).uri;
+        window.location = toolOpen + encodeURI(creationUri);
       }
 
       document.querySelector("form#load").onsubmit = async (e) => {
