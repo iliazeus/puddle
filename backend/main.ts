@@ -51,6 +51,9 @@ async function loadMedia(creation: any, mediaKind: string): Promise<Blob> {
 
 app.get("/creations", async function getCreations(c: Context) {
   let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+  if (c.req.query("all") !== undefined) {
+    creations.items = creations.items.filter((x: any) => !x.hidden);
+  }
   for (let creation of creations.items) {
     if (creation.image) creation.image = creation.image.uri;
     if (creation.audio) creation.audio = creation.audio.uri;
@@ -118,6 +121,8 @@ app.post(
         audio: z.string().url().startsWith("data:").optional(),
         video: z.string().url().startsWith("data:").optional(),
         data: z.string().optional(),
+        ttl: z.number().int().optional(),
+        hidden: z.boolean().optional(),
       }).strip().parse(await c.req.json());
 
     let creations: any = JSON.parse(
@@ -137,17 +142,6 @@ app.post(
     if (newCreation.video) await saveMedia(newCreation, "video");
 
     creations.items.unshift(newCreation);
-
-    for (let creation of creations.items) {
-      if (+now - +new Date(creation.time) > 25 * 60 * 60 * 1000) {
-        if (creation.image) await fs.rm(creation.image.path);
-        if (creation.audio) await fs.rm(creation.audio.path);
-        if (creation.video) await fs.rm(creation.video.path);
-      }
-    }
-    creations.items = creations.items.filter(
-      (x: any) => +now - +new Date(x.time) <= 25 * 60 * 60 * 1000
-    );
 
     await fs.writeFile("./creations.json", JSON.stringify(creations), "utf-8");
 
@@ -177,5 +171,30 @@ app.onError(async function onError(e: any, c: Context) {
   if (e.name === "ValTownBlobNotFoundError") return c.notFound();
   throw e;
 });
+
+setInterval(
+  async function purgeOlderCreations() {
+    let now = new Date();
+    let creations = JSON.parse(await fs.readFile("./creations.json", "utf-8"));
+    let newItems = [];
+
+    for (let creation of creations.items) {
+      let ttl = creation.ttl ?? 25 * 60 * 60 * 1000;
+      let timeOfDeath = +new Date(creation.time) + ttl;
+
+      if (timeOfDeath <= +now) {
+        if (creation.image) await fs.rm(creation.image.path);
+        if (creation.audio) await fs.rm(creation.audio.path);
+        if (creation.video) await fs.rm(creation.video.path);
+      } else {
+        newItems.push(creation);
+      }
+    }
+
+    creations.items = newItems;
+    await fs.writeFile("./creations.json", JSON.stringify(creations), "utf-8");
+  },
+  10 * 60 * 1000
+);
 
 serve({ fetch: app.fetch, port: 8003 });
