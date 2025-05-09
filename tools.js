@@ -95,4 +95,16 @@ export const tools = [
     open: null,
     create: "https://ponder.ooo/styleshoot.html",
   },
+  {
+    name: "cook",
+    types: ["cook"],
+    open: "https://r74n.com/cook/?pond-id=",
+    create: "https://r74n.com/cook/?src=pondiverse",
+  },
+  {
+    name: "linky",
+    types: ["linky"],
+    open: "https://cute-catgirl.github.io/linky/?id=",
+    create: "https://cute-catgirl.github.io/linky/",
+  },
 ];
