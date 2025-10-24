@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@hono/node-server": "^1.14.1",
-    "hono": "^4.10.2",
+    "hono": "^4.10.3",
     "zod": "^3.24.3"
   },
   "devDependencies": {
